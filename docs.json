@@ -4,8 +4,8 @@
   "name": "Zelkea API Docs",
   "colors": {
     "primary": "#ff2626",
-    "light": "#000",
-    "dark": "#000"
+    "light": "#ff2626",
+    "dark": "#ff2626"
   },
   "favicon": "/favicon.svg",
   "navigation": {
