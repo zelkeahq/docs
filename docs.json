@@ -3,7 +3,7 @@
   "theme": "mint",
   "name": "Zelkea API Docs",
   "colors": {
-    "primary": "#000",
+    "primary": "#ff2626",
     "light": "#000",
     "dark": "#000"
   },
