@@ -1,0 +1,119 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Zelkea API Docs",
+  "colors": {
+    "primary": "#000",
+    "light": "#000",
+    "dark": "#000"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "pages": [
+      {
+        "group": "Getting Started",
+        "pages": [
+          "index",
+          "quickstart"
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Documentation",
+          "href": "https://mintlify.com/docs",
+          "icon": "book-open-cover"
+        },
+        {
+          "anchor": "Blog",
+          "href": "https://mintlify.com/blog",
+          "icon": "newspaper"
+        }
+      ]
+    },
+    "tabs": [
+      {
+        "tab": "Getting Started",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "index",
+              "quickstart"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Refrence",
+        "groups": [
+          {
+            "group": "API Reference",
+            "openapi": "openapi.json"
+          }
+        ]
+      }
+    ]
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg",
+    "href": "https://zelkea.com"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "mailto:support@zelkea.com"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Dashboard",
+      "href": "https://app.mintlify.com"
+    }
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/zelkea",
+      "github": "https://github.com/zelkea",
+      "linkedin": "https://linkedin.com/company/zelkea"
+    }
+  },
+  "api": {
+    "openapi": "openapi.json",
+    "playground": {
+      "display": "interactive"
+    },
+    "examples": {
+      "prefill": false
+    },
+    "url": "full"
+  },
+  "integrations": {
+    "posthog": {
+      "apiKey": "phc_vzWYe5ShDsNkBUqN9YcsXaL5KDMoKeiAbZWzKgMPVAaa",
+      "apiHost": "https://us.i.posthog.com",
+      "sessionRecording": true
+    }
+  },
+  "fonts": {
+    "family": "Inter"
+  },
+  "markdown": {
+    "schema": true
+  }
+}

@@ -1,0 +1,759 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Zelkea API",
+    "description": "A universal financial addressing and payment routing protocol",
+    "version": "1.0.0-beta",
+    "contact": {
+      "name": "Zelkea"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.zelkea.com",
+      "description": "Production"
+    }
+  ],
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Handles",
+      "description": "Universal financial addresses issued by financial institutions"
+    },
+    {
+      "name": "Transfers",
+      "description": "Move money between handles across the Zelkea network"
+    },
+    {
+      "name": "Payments",
+      "description": "Authorized money movement from customer handles to businesses"
+    }
+  ],
+  "paths": {
+    "/handles": {
+      "post": {
+        "tags": [
+          "Handles"
+        ],
+        "operationId": "createHandle",
+        "summary": "Create a payment handle",
+        "description": "Registers a new payment handle issued under the institution's domain.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateHandleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Handle created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/HandleData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Handles"
+        ],
+        "operationId": "listHandles",
+        "summary": "List all handles issued by the calling institution",
+        "description": "Returns all handles issued by the calling institution.",
+        "responses": {
+          "200": {
+            "description": "Handles listed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "count": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/HandleData"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/handles/{handle}": {
+      "get": {
+        "tags": [
+          "Handles"
+        ],
+        "operationId": "getHandle",
+        "summary": "Get a specific handle",
+        "description": "Retrieves a handle's details. The handle must be issued by the calling institution.",
+        "parameters": [
+          {
+            "name": "handle",
+            "in": "path",
+            "required": true,
+            "description": "The full handle (e.g. `alice@acme`)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Handle found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/HandleData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Handles"
+        ],
+        "operationId": "updateHandle",
+        "summary": "Update a handle",
+        "description": "Updates one or more fields on a handle. The handle must be issued by the calling institution.",
+        "parameters": [
+          {
+            "name": "handle",
+            "in": "path",
+            "required": true,
+            "description": "The handle to update (e.g. `alice@acme`)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateHandleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Handle updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/HandleData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/transfers": {
+      "post": {
+        "tags": [
+          "Transfers"
+        ],
+        "operationId": "createTransfer",
+        "summary": "Execute a transfer",
+        "description": "Executes a handle-to-handle transfer. The caller must be authorized to move funds from the sender handle.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTransferRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Transfer executed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        }
+      }
+    },
+    "/payments": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "operationId": "createPayment",
+        "summary": "Execute a merchant payment",
+        "description": "Executes a payment from a handle to a business handle.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePaymentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Payment executed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PaymentResult"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "API keys authenticate requests and control access through permission scopes."
+      }
+    },
+    "parameters": {
+      "IdempotencyKey": {
+        "name": "idempotency-key",
+        "in": "header",
+        "required": true,
+        "description": "A unique key to ensure idempotent request processing. Must be a UUID.",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "schemas": {
+      "CreateHandleRequest": {
+        "type": "object",
+        "required": [
+          "handle",
+          "balance",
+          "currency",
+          "limit",
+          "code",
+          "status"
+        ],
+        "properties": {
+          "handle": {
+            "type": "string",
+            "description": "The handle identifier (domain suffix is appended automatically)"
+          },
+          "balance": {
+            "type": "number",
+            "description": "Initial balance"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "USD"
+            ],
+            "description": "Currency code"
+          },
+          "limit": {
+            "type": "number",
+            "description": "Per-transaction limit"
+          },
+          "code": {
+            "type": "string",
+            "description": "Security authorization code for the handle"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "restricted",
+              "inactive"
+            ],
+            "description": "Initial status of the handle"
+          },
+          "external_reference": {
+            "type": "string",
+            "description": "Optional external reference ID"
+          }
+        }
+      },
+      "UpdateHandleRequest": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "restricted",
+              "inactive"
+            ]
+          },
+          "balance": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "code": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "USD"
+            ]
+          },
+          "external_reference": {
+            "type": "string"
+          }
+        },
+        "minProperties": 1,
+        "description": "At least one field must be provided"
+      },
+      "HandleData": {
+        "type": "object",
+        "properties": {
+          "handle": {
+            "type": "string",
+            "description": "Full handle (e.g. `alice@acme`)"
+          },
+          "balance": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "restricted",
+              "inactive"
+            ]
+          },
+          "code": {
+            "type": "string"
+          },
+          "external_reference": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateTransferRequest": {
+        "type": "object",
+        "required": [
+          "sender",
+          "receiver",
+          "amount",
+          "currency"
+        ],
+        "properties": {
+          "sender": {
+            "type": "string",
+            "description": "Sender handle"
+          },
+          "receiver": {
+            "type": "string",
+            "description": "Receiver handle"
+          },
+          "amount": {
+            "type": "number",
+            "description": "Amount to transfer"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "USD",
+              "EUR"
+            ],
+            "description": "Currency code"
+          }
+        }
+      },
+      "CreatePaymentRequest": {
+        "type": "object",
+        "required": [
+          "customer",
+          "amount",
+          "currency",
+          "code"
+        ],
+        "properties": {
+          "customer": {
+            "type": "string",
+            "description": "Customer's fully qualified handle (e.g. `alice@acme`)"
+          },
+          "amount": {
+            "type": "number",
+            "description": "Total payment amount"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "USD",
+              "EUR"
+            ],
+            "description": "Payment currency"
+          },
+          "code": {
+            "type": "string",
+            "description": "Customer's current security authorization code"
+          },
+          "splits": {
+            "type": "array",
+            "description": "Optional payment splits. If provided, the sum of all split amounts must equal the total amount.",
+            "items": {
+              "$ref": "#/components/schemas/PaymentSplit"
+            }
+          }
+        }
+      },
+      "PaymentSplit": {
+        "type": "object",
+        "required": [
+          "handle",
+          "amount"
+        ],
+        "properties": {
+          "handle": {
+            "type": "string",
+            "description": "Receiver's handle"
+          },
+          "amount": {
+            "type": "number",
+            "description": "Amount allocated"
+          }
+        }
+      },
+      "PaymentResult": {
+        "type": "object",
+        "properties": {
+          "payment_id": {
+            "type": "string"
+          },
+          "merchant": {
+            "type": "string"
+          },
+          "customer": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "allocations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "handle": {
+                  "type": "string"
+                },
+                "amount": {
+                  "type": "number"
+                },
+                "transfer_id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "TransferResult": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Transaction ID"
+          },
+          "sender": {
+            "type": "string"
+          },
+          "receiver": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reference": {
+            "type": "string"
+          }
+        }
+      },
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "const": true
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "const": false
+          },
+          "error": {
+            "type": "string"
+          },
+          "details": {},
+          "requestId": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad request — missing or invalid parameters",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Unauthorized — missing, invalid, or expired bearer token",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "const": "Unauthorized"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "requestId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Forbidden — insufficient scope or organization mismatch",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "const": "Forbidden"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "requestId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "Conflict — resource already exists",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "UnprocessableEntity": {
+        "description": "Unprocessable entity — required financial infrastructure is unavailable",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  }
+}
