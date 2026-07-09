@@ -3,9 +3,9 @@
   "theme": "mint",
   "name": "Zelkea API Docs",
   "colors": {
-    "primary": "#FF5A00",
-    "light": "#D3D3D3",
-    "dark": "#D3D3D3"
+    "primary": "#D3D3D3",
+    "light": "#FF5A00",
+    "dark": "#FF5A00"
   },
   "favicon": "/favicon.svg",
   "navigation": {
