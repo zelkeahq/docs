@@ -111,12 +111,26 @@
       },
       {
         "tab": "Developer Platform",
-        "icon": "layers"
+        "icon": "layers",
+        "groups": [
+          {
+            "group": "Core concepts",
+            "pages": [
+              "overview",
+              "institutions",
+              "businesses",
+              "handles",
+              "transfers",
+              "payments"
+            ]
+          }
+        ]
       },
       {
         "tab": "API Refrence",
         "icon": "code-xml",
-        "groups": [
+        "pages": [
+          "authentication",
           {
             "group": "API Reference",
             "openapi": "openapi.json"
