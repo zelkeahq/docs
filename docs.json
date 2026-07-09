@@ -95,7 +95,16 @@
             "group": "Getting Started",
             "pages": [
               "index",
-              "quickstart"
+              "platform-overview",
+              "global-availability",
+              "make-your-first-api-call"
+            ]
+          },
+          {
+            "group": "How it works",
+            "pages": [
+              "zelkea-for-institutions",
+              "zelkea-for-businesses"
             ]
           }
         ]
