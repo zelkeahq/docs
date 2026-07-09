@@ -127,12 +127,13 @@
         ]
       },
       {
-        "tab": "API Refrence",
+        "tab": "API Refrrence",
         "icon": "code-xml",
         "pages": [
           "authentication",
+          "idempotency",
           {
-            "group": "API Reference",
+            "group": "Endpoints",
             "openapi": "openapi.json"
           }
         ]
