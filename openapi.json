@@ -249,6 +249,11 @@
         "operationId": "createTransfer",
         "summary": "Execute a transfer",
         "description": "Executes a handle-to-handle transfer. The caller must be authorized to move funds from the sender handle.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
