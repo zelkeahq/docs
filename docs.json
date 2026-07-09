@@ -102,10 +102,7 @@
       },
       {
         "tab": "Developer Platform",
-        "icon": "layers",
-        "pages": [
-          "untitled-page"
-        ]
+        "icon": "layers"
       },
       {
         "tab": "API Refrence",
