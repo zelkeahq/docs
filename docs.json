@@ -127,7 +127,7 @@
         ]
       },
       {
-        "tab": "API Refrrence",
+        "tab": "API Reference",
         "icon": "code-xml",
         "pages": [
           "authentication",
