@@ -58,6 +58,10 @@
       {
         "label": "Support",
         "href": "mailto:support@zelkea.com"
+      },
+      {
+        "href": "https://zelkea.com/contact",
+        "label": "Talk to sales"
       }
     ],
     "primary": {
