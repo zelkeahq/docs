@@ -1,5 +1,4 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Zelkea API Docs",
   "colors": {
@@ -7,57 +6,32 @@
     "light": "#FFFFFF",
     "dark": "#000000"
   },
-  "favicon": "/favicon.svg",
-  "navigation": {
-    "pages": [
-      {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart"
-        ]
-      }
-    ],
-    "tabs": [
-      {
-        "tab": "Get Started",
-        "groups": [
-          {
-            "group": "Getting Started",
-            "pages": [
-              "index",
-              "quickstart"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Developer Platform",
-        "pages": [
-          "untitled-page"
-        ]
-      },
-      {
-        "tab": "API Refrence",
-        "groups": [
-          {
-            "group": "API Reference",
-            "openapi": "openapi.json"
-          }
-        ]
-      }
-    ]
-  },
   "logo": {
     "light": "/logo/light.svg",
     "dark": "/logo/dark.svg",
     "href": "https://zelkea.com"
   },
+  "favicon": "/favicon.svg",
+  "api": {
+    "openapi": "openapi.json",
+    "playground": {
+      "display": "interactive"
+    },
+    "examples": {
+      "prefill": false
+    },
+    "url": "full"
+  },
+  "background": {
+    "color": {
+      "light": "#F7F7F7"
+    }
+  },
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:support@zelkea.com"
+        "href": "mailto:support@zelkea.com",
+        "label": "Support"
       },
       {
         "href": "https://zelkea.com/contact",
@@ -70,6 +44,26 @@
       "href": "https://app.mintlify.com"
     }
   },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/zelkea",
+      "github": "https://github.com/zelkea",
+      "linkedin": "https://linkedin.com/company/zelkea"
+    }
+  },
+  "fonts": {
+    "family": "Inter"
+  },
+  "icons": {
+    "library": "lucide"
+  },
+  "integrations": {
+    "posthog": {
+      "apiKey": "phc_vzWYe5ShDsNkBUqN9YcsXaL5KDMoKeiAbZWzKgMPVAaa",
+      "apiHost": "https://us.i.posthog.com",
+      "sessionRecording": true
+    }
+  },
   "contextual": {
     "options": [
       "copy",
@@ -80,49 +74,49 @@
       "mcp",
       "cursor",
       "vscode"
-    ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/zelkea",
-      "github": "https://github.com/zelkea",
-      "linkedin": "https://linkedin.com/company/zelkea"
-    }
-  },
-  "api": {
-    "openapi": "openapi.json",
-    "playground": {
-      "display": "interactive"
-    },
-    "examples": {
-      "prefill": false
-    },
-    "url": "full"
-  },
-  "integrations": {
-    "posthog": {
-      "apiKey": "phc_vzWYe5ShDsNkBUqN9YcsXaL5KDMoKeiAbZWzKgMPVAaa",
-      "apiHost": "https://us.i.posthog.com",
-      "sessionRecording": true
-    }
-  },
-  "fonts": {
-    "family": "Inter"
-  },
-  "markdown": {
-    "schema": true
-  },
-  "background": {
-    "color": {
-      "light": "#F7F7F7"
-    }
+    ],
+    "display": "header"
   },
   "thumbnails": {
     "fonts": {
       "family": "Inter"
     }
   },
-  "icons": {
-    "library": "lucide"
+  "markdown": {
+    "schema": true
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Get Started",
+        "icon": "compass",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "index",
+              "quickstart"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Developer Platform",
+        "icon": "layers",
+        "pages": [
+          "untitled-page"
+        ]
+      },
+      {
+        "tab": "API Refrence",
+        "icon": "code-xml",
+        "groups": [
+          {
+            "group": "API Reference",
+            "openapi": "openapi.json"
+          }
+        ]
+      }
+    ]
   }
 }
