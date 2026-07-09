@@ -116,5 +116,10 @@
     "color": {
       "light": "#F7F7F7"
     }
+  },
+  "thumbnails": {
+    "fonts": {
+      "family": "Inter"
+    }
   }
 }
