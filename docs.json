@@ -1,11 +1,11 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
+  "theme": "sequoia",
   "name": "Zelkea API Docs",
   "colors": {
-    "primary": "#3064e3",
-    "light": "#3064e3",
-    "dark": "#3064e3"
+    "primary": "#FF5A00",
+    "light": "#FF8440",
+    "dark": "#FF8440"
   },
   "favicon": "/favicon.svg",
   "navigation": {
