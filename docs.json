@@ -18,31 +18,36 @@
         ]
       }
     ],
-    "tabs": [
+    "products": [
       {
-        "tab": "Get Started",
-        "groups": [
+        "product": "dd",
+        "tabs": [
           {
-            "group": "Getting Started",
-            "pages": [
-              "index",
-              "quickstart"
+            "tab": "Get Started",
+            "groups": [
+              {
+                "group": "Getting Started",
+                "pages": [
+                  "index",
+                  "quickstart"
+                ]
+              }
             ]
-          }
-        ]
-      },
-      {
-        "tab": "Developer Platform",
-        "pages": [
-          "untitled-page"
-        ]
-      },
-      {
-        "tab": "API Refrence",
-        "groups": [
+          },
           {
-            "group": "API Reference",
-            "openapi": "openapi.json"
+            "tab": "Developer Platform",
+            "pages": [
+              "untitled-page"
+            ]
+          },
+          {
+            "tab": "API Refrence",
+            "groups": [
+              {
+                "group": "API Reference",
+                "openapi": "openapi.json"
+              }
+            ]
           }
         ]
       }
