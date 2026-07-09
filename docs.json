@@ -121,5 +121,8 @@
     "fonts": {
       "family": "Inter"
     }
+  },
+  "icons": {
+    "library": "lucide"
   }
 }
