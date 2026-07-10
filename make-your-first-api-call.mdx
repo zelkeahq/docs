@@ -1,3 +1,63 @@
 ---
 title: "Make your first api call"
 ---
+
+# Make your first API call
+
+This guide helps you set up your institution account, issue your first customer payment handle, and execute an instant network transfer.
+
+---
+
+## 1. Sign up your institution
+
+Before using the API, your institution must register its top-level routing domain.
+
+- Go to [app.zelkea.com](https://app.zelkea.com) and create an institution account.
+- Complete your onboarding and retrieve your API secret key from your dashboard.
+
+Set your key as an environment variable to authenticate requests:
+
+```bash
+export ZELKEA_API_KEY="your_api_key_here"
+```
+
+## 2. Create a payment handle
+
+Every user on the network needs a unique payment handle (`user@domain`) to route transactions securely. The domain suffix is appended automatically based on your institution configuration.
+
+<RequestExample>
+
+```text filename
+curl -X POST [https://api.zelkea.com/handles](https://api.zelkea.com/handles) \
+  -H "Authorization: Bearer $ZELKEA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "handle": "alice",
+    "balance": 1000.00,
+    "currency": "USD",
+    "limit": 5000.00,
+    "code": "auth-secure-1234",
+    "status": "active"
+  }'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```text filename
+{
+  "success": true,
+  "data": {
+    "handle": "alice@acme",
+    "balance": 1000.00,
+    "currency": "USD",
+    "limit": 5000.00,
+    "status": "active",
+    "code": "auth-secure-1234",
+    "created_at": "2026-07-10T00:21:49Z"
+  }
+}
+```
+
+</ResponseExample>
