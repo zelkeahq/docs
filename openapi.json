@@ -31,6 +31,10 @@
     {
       "name": "Payments",
       "description": "Authorized money movement from customer handles to businesses"
+    },
+    {
+      "name": "Webhooks",
+      "description": "Receive real-time notifications when money moves"
     }
   ],
   "paths": {
@@ -571,6 +575,135 @@
           }
         }
       }
+    },
+    "/webhooks": {
+      "post": {
+        "tags": [
+          "Webhooks"
+        ],
+        "operationId": "createWebhook",
+        "summary": "Register a webhook endpoint",
+        "description": "Registers a URL to receive real-time event notifications for the calling institution or business. A signing secret is generated and returned once; it is not retrievable again after this call. Registering again replaces any existing configuration and issues a new secret.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWebhookRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Webhook registered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/WebhookSecretData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Webhooks"
+        ],
+        "operationId": "getWebhook",
+        "summary": "Get the registered webhook configuration",
+        "description": "Returns the currently registered webhook URL for the calling institution or business. The signing secret is masked; it is only shown in full at creation time.",
+        "responses": {
+          "200": {
+            "description": "Webhook configuration found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/WebhookMaskedData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Webhooks"
+        ],
+        "operationId": "deleteWebhook",
+        "summary": "Remove the registered webhook",
+        "description": "Deletes the webhook configuration for the calling institution or business. Event delivery stops immediately.",
+        "responses": {
+          "200": {
+            "description": "Webhook deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "deleted": {
+                          "type": "boolean",
+                          "const": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -866,6 +999,72 @@
           },
           "reference": {
             "type": "string"
+          }
+        }
+      },
+      "CreateWebhookRequest": {
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "HTTPS endpoint that will receive event notifications"
+          }
+        }
+      },
+      "WebhookSecretData": {
+        "type": "object",
+        "description": "Returned only at registration time. The full secret is never shown again.",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "secret": {
+            "type": "string",
+            "description": "Signing secret used to verify the `Zelkea-Signature` header on delivered events. Store this securely — it is not retrievable again."
+          }
+        }
+      },
+      "WebhookMaskedData": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "secret": {
+            "type": "string",
+            "description": "Masked signing secret, e.g. `whsec_ab12cd34...`"
+          }
+        }
+      },
+      "WebhookEvent": {
+        "type": "object",
+        "description": "The payload shape delivered to a registered webhook URL. Not returned by any endpoint directly — described here for integration reference. Verify the `Zelkea-Signature` header before trusting the payload; see the Webhooks guide for the verification algorithm.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique event ID, e.g. `evt_8f2a1c9e`. Use this to deduplicate retried deliveries."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "transfer.completed",
+              "payment.completed"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data": {
+            "type": "object",
+            "description": "Event-specific payload. For `transfer.completed`, matches TransferResult. For `payment.completed`, includes `direction` (`inbound` or `outbound`), the relevant handle, and the full `splits` breakdown when applicable.",
+            "additionalProperties": true
           }
         }
       },
