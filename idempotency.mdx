@@ -1,3 +1,38 @@
 ---
 title: "Idempotency"
 ---
+
+All `POST` APIs in Zelkea require [idempotency](https://developer.mozilla.org/en-US/docs/Glossary/Idempotent) to ensure safe retries and prevent duplicate operations. You must include an `idempotency-key` header with a unique value for every request.
+
+If a request is retried due to network issues, timeouts, or unexpected failures, Zelkea uses the idempotency key to recognize the duplicate request and return the original response without creating duplicate operations.
+
+> Do not include an `idempotency-key` with `GET`, `PUT`, `PATCH`, or `DELETE` requests. These methods do not require this header.
+
+### How It Works
+
+- Include a unique `idempotency-key` (typically a UUID) in the header of every `POST` request.
+- Zelkea guarantees idempotent behavior for 24 hours after the initial request. During this period, requests using the same key return the original response without side effects.
+- If a request fails or times out, retry it using the same `idempotency-key` to ensure only one operation is created.
+- Retries must use the same request body. Reusing an `idempotency-key` with a modified request body will return an idempotency error.
+- After the 24-hour window expires, reusing the same `idempotency-key` will return a `422 Unprocessable Entity` error.
+
+### Best Practices
+
+- Generate a new UUID for every new request.
+- Store idempotency keys in your database to track request state.
+- Reuse the same key when retrying failed requests.
+
+### Example
+
+```shell
+curl --location --request POST 'https://api.zelkea.com/transfers' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer $ZELKEA_API_KEY' \
+--header 'Idempotency-Key: 7b9e4a3c-2d1e-4f5a-8b6c-9d8e7f6a5b4c' \
+--data-raw '{
+  "sender": "alice@acme",
+  "receiver": "bob@scbank",
+  "amount": 250,
+  "currency": "USD"
+}'
+```
