@@ -27,7 +27,7 @@ Every customer on the network needs a unique payment handle (`user@domain`) to s
 
 ```bash cURL Request
 curl --location --request POST 'https://api.zelkea.com/handles' \
---header 'Authorization: Bearer $ZELKEA_API_KEY' \
+--header "Authorization: Bearer $ZELKEA_API_KEY" \
 --header 'Content-Type: application/json' \
 --data-raw '{
   "handle": "alice",
@@ -80,7 +80,7 @@ curl --location --request POST 'https://api.zelkea.com/transfers' \
 {
     "id": "tx_987654321",
     "sender": "alice@acme",
-    "receiver": "bob@chase",
+    "receiver": "bob@scbank",
     "amount": 250,
     "currency": "USD",
     "status": "completed",
