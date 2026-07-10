@@ -101,10 +101,13 @@
             ]
           },
           {
-            "group": "How it works",
+            "group": "Common use cases",
             "pages": [
-              "zelkea-for-institutions",
-              "zelkea-for-businesses"
+              "financial-institutions",
+              "physical-retail",
+              "creator-economy",
+              "marketplaces",
+              "global-payments"
             ]
           }
         ]
