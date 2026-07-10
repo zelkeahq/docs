@@ -32,11 +32,10 @@ curl --location --request POST 'https://api.zelkea.com/handles' \
 --data-raw '{
   "handle": "alice",
   "balance": 1000,
+  "limit": 5000,
   "currency": "USD",
-  "authorization": {
-    "code": "XSO2B9",
-    "limit": 5000
-  },
+  "code": "XSO2B9",
+  "status": "active",
   "status": "active"
 }'
 ```
@@ -45,11 +44,9 @@ curl --location --request POST 'https://api.zelkea.com/handles' \
 {
   "handle": "alice@acme",
   "balance": 1000,
+  "limit": 5000,
   "currency": "USD",
-  "authorization": {
-    "code": "XSO2B9",
-    "limit": 5000
-  },
+  "code": "XSO2B9",
   "status": "active",
   "created_at": "2026-07-10T00:21:49Z"
 }
