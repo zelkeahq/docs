@@ -2,6 +2,10 @@
 title: "Make your first API call"
 ---
 
+This guide helps you set up your institution account, issue your first customer payment handle, and execute an instant network transfer.
+
+---
+
 ## 1. Sign up your institution
 
 Before using the API, your institution must register its top-level routing domain.
@@ -17,11 +21,11 @@ export ZELKEA_API_KEY="your_api_key_here"
 
 ## 2. Create a payment handle
 
-Every user on the network needs a unique payment handle (`user@domain`) to route transactions securely. The domain suffix is appended automatically based on your institution configuration.
+Every user on the network needs a unique payment handle (`user@domain`) to route transactions securely.
 
 <RequestExample>
 
-```bash
+```bash Request
 curl -X POST https://api.zelkea.com/handles \
   -H "Authorization: Bearer $ZELKEA_API_KEY" \
   -H "Content-Type: application/json" \
@@ -39,7 +43,7 @@ curl -X POST https://api.zelkea.com/handles \
 
 <ResponseExample>
 
-```json
+```json Response
 {
   "success": true,
   "data": {
@@ -58,11 +62,11 @@ curl -X POST https://api.zelkea.com/handles \
 
 ## 3. Execute a transfer
 
-Move funds instantly across the network from an authorized sender handle to a receiver handle. You must include a unique UUID as an `idempotency-key` header to prevent double-processing.
+Move funds instantly across the network from an authorized sender handle to a receiver handle.
 
 <RequestExample>
 
-```bash
+```bash Request
 curl -X POST https://api.zelkea.com/transfers \
   -H "Authorization: Bearer $ZELKEA_API_KEY" \
   -H "idempotency-key: 7b9e4a3c-2d1e-4f5a-8b6c-9d8e7f6a5b4c" \
@@ -79,7 +83,7 @@ curl -X POST https://api.zelkea.com/transfers \
 
 <ResponseExample>
 
-```json
+```json Response
 {
   "success": true,
   "data": {
