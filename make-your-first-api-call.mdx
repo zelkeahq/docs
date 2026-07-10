@@ -27,7 +27,7 @@ Every user on the network needs a unique payment handle (`user@domain`) to route
 
 <RequestExample>
 
-```text filename
+```text Create a handle
 curl -X POST [https://api.zelkea.com/handles](https://api.zelkea.com/handles) \
   -H "Authorization: Bearer $ZELKEA_API_KEY" \
   -H "Content-Type: application/json" \
@@ -45,7 +45,7 @@ curl -X POST [https://api.zelkea.com/handles](https://api.zelkea.com/handles) \
 
 <ResponseExample>
 
-```text filename
+```text Handle creation response
 {
   "success": true,
   "data": {
