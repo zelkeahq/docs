@@ -1,3 +1,23 @@
 ---
 title: "Authentication"
 ---
+
+Zelkea uses secure API keys to authenticate requests. You can generate and manage your keys directly from your [dashboard](https://app.zelkea.com).
+
+<Warning>
+  **API keys are shown only once** at creation. Copy and store your key securely, as it cannot be retrieved later. Do not share it or expose it in client-side code.
+</Warning>
+
+## How authentication works
+
+- Pass your API key in the `Authorization` header as a Bearer token: `Authorization: Bearer <your_api_key>`.
+- All requests must be made over HTTPS. Requests over plain HTTP will be rejected automatically.
+- Invalid, expired, or missing keys will return a `401 Unauthorized` status code.
+
+## Example request
+
+```bash cURL Request
+curl --location --request POST 'https://api.zelkea.com/handles' \
+--header 'Authorization: Bearer $ZELKEA_API_KEY' \
+--header 'Content-Type: application/json'
+```
