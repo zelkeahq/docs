@@ -2,7 +2,7 @@
 title: "Make your first api call"
 ---
 
-In under five minutes you'll register your institution, issue your first payment handle, execute a transfer, and receive real-time events through webhooks.
+In under five minutes, you'll register your institution, issue your first payment handle, execute a transfer, and start receiving real-time events through webhooks.
 
 ---
 
@@ -21,33 +21,37 @@ ZELKEA_API_KEY="your_api_key_here"
 
 ## 2. Create a handle
 
-Every user on the network needs a unique payment handle (`user@domain`) to route transactions. The domain suffix is appended automatically based on your institution configuration.
+Every customer on the network needs a unique payment handle (`user@domain`) to send and receive money. The domain is automatically appended based on your institution configuration.
 
 <CodeGroup>
 
 ```bash cURL Request
 curl --location --request POST 'https://api.zelkea.com/handles' \
---header 'Authorization: Bearer \$ZELKEA_API_KEY' \
+--header 'Authorization: Bearer $ZELKEA_API_KEY' \
 --header 'Content-Type: application/json' \
 --data-raw '{
   "handle": "alice",
   "balance": 1000,
   "currency": "USD",
-  "limit": 5000,
-  "code": "XSO2B9",
+  "authorization": {
+    "code": "XSO2B9",
+    "limit": 5000
+  },
   "status": "active"
 }'
 ```
 
 ```json Response
 {
-    "handle": "alice@acme",
-    "balance": 1000,
-    "currency": "USD",
-    "limit": 5000,
-    "status": "active",
+  "handle": "alice@acme",
+  "balance": 1000,
+  "currency": "USD",
+  "authorization": {
     "code": "XSO2B9",
-    "created_at": "2026-07-10T00:21:49Z"
+    "limit": 5000
+  },
+  "status": "active",
+  "created_at": "2026-07-10T00:21:49Z"
 }
 ```
 
@@ -55,7 +59,7 @@ curl --location --request POST 'https://api.zelkea.com/handles' \
 
 ## 3. Create a transfer
 
-You can make instant transfers on behalf of your customers to any enabled handle across the network. You must include a unique UUID as an `idempotency-key` header to prevent double-processing.
+This endpoint enables instant fund transfers from your customers to any enabled handle. You must include a unique UUID as an `idempotency-key` header to prevent double-processing.
 
 <CodeGroup>
 
@@ -88,7 +92,7 @@ curl --location --request POST 'https://api.zelkea.com/transfers' \
 
 ## **4. Set up webhooks**
 
-Now you can set up webhooks to receive real-time transfer updates.
+Now you can register a webhook endpoint to receive real-time payment and transfer events.
 
 <CodeGroup>
 
@@ -110,4 +114,6 @@ curl --location --request POST 'https://api.zelkea.com/webhooks' \
 
 </CodeGroup>
 
-All set. It's all that's needed to allow your customers to send and receive money from other network participants. You can dive further and explore a deeper use case for [fintechs](/financial-apps), do a deep platform dive [here](/platform-overview)  or reach out to our team at [support@zelkea.com](mailto:support@zelkea.com) if you need help.
+That's it. Your institution can now issue handles, make transfers, and receive real-time transaction events.
+
+Next, explore a complete integration for [Financial apps](/financial-apps), learn more about the protocol in the [Platform overview](/platform-overview), or browse the [API reference](/authentication).
