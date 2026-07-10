@@ -27,8 +27,8 @@ If a request is retried due to network issues, timeouts, or unexpected failures,
 ```shell
 curl --location --request POST 'https://api.zelkea.com/transfers' \
 --header 'Content-Type: application/json' \
---header 'Authorization: Bearer $ZELKEA_API_KEY' \
---header 'Idempotency-Key: 7b9e4a3c-2d1e-4f5a-8b6c-9d8e7f6a5b4c' \
+--header 'Authorization: Bearer <api-key>' \
+--header 'idempotency-key: 7b9e4a3c-2d1e-4f5a-8b6c-9d8e7f6a5b4c' \
 --data-raw '{
   "sender": "alice@acme",
   "receiver": "bob@scbank",
