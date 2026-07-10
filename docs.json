@@ -83,7 +83,7 @@
     }
   },
   "markdown": {
-    "schema": true
+    "schema": false
   },
   "navigation": {
     "tabs": [
