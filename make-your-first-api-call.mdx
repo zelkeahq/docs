@@ -2,91 +2,110 @@
 title: "Make your first api call"
 ---
 
-This guide helps you set up your institution account, issue your first customer payment handle, and execute an instant network transfer.
+This guide helps you set up your institution account, issue your first customer handle, and execute an instant transfer.
 
 ---
 
 ## 1. Sign up your institution
 
-Before using the API, your institution must register its top-level routing domain.
+Before using the API, your institution must be registered on Zelkea.
 
-- Go to [://zelkea.com](https://://zelkea.com) and create an institution account.
-- Complete your onboarding and retrieve your API secret key from your dashboard.
+- Go to [https://app.zelkea.com](https://app.zelkea.com) and create an institution account.
+- Complete onboarding and grab your first API key from your dashboard.
 
 Set your key as an environment variable to authenticate requests:
 
 ```bash
-export ZELKEA_API_KEY="your_api_key_here"
+ZELKEA_API_KEY="your_api_key_here"
 ```
 
-## 2. Create a payment handle
+## 2. Create a handle
 
-Every user on the network needs a unique payment handle (`user@domain`) to route transactions securely. The domain suffix is appended automatically based on your institution configuration.
+Every user on the network needs a unique payment handle (`user@domain`) to route transactions. The domain suffix is appended automatically based on your institution configuration.
 
 <CodeGroup>
 
 ```bash cURL Request
-curl --location --request POST 'https://zelkea.com' \
+curl --location --request POST 'https://api.zelkea.com/handles' \
 --header 'Authorization: Bearer \$ZELKEA_API_KEY' \
 --header 'Content-Type: application/json' \
 --data-raw '{
   "handle": "alice",
-  "balance": 1000.00,
+  "balance": 1000,
   "currency": "USD",
-  "limit": 5000.00,
-  "code": "auth-secure-1234",
+  "limit": 5000,
+  "code": "XSO2B9",
   "status": "active"
 }'
 ```
 
 ```json Response
 {
-  "success": true,
-  "data": {
     "handle": "alice@acme",
-    "balance": 1000.00,
+    "balance": 1000,
     "currency": "USD",
-    "limit": 5000.00,
+    "limit": 5000,
     "status": "active",
-    "code": "auth-secure-1234",
+    "code": "XSO2B9",
     "created_at": "2026-07-10T00:21:49Z"
-  }
 }
 ```
 
 </CodeGroup>
 
-## 3. Execute a transfer
+## 3. Create a transfer
 
-Move funds instantly across the network from an authorized sender handle to a receiver handle. You must include a unique UUID as an `idempotency-key` header to prevent double-processing.
+You can make instant transfers on behalf of your customers to any enabled handle across the network. You must include a unique UUID as an `idempotency-key` header to prevent double-processing.
 
 <CodeGroup>
 
 ```bash cURL Request
-curl --location --request POST 'https://zelkea.com' \
+curl --location --request POST 'https://api.zelkea.com/transfers' \
 --header 'Authorization: Bearer \$ZELKEA_API_KEY' \
 --header 'idempotency-key: 7b9e4a3c-2d1e-4f5a-8b6c-9d8e7f6a5b4c' \
 --header 'Content-Type: application/json' \
 --data-raw '{
   "sender": "alice@acme",
-  "receiver": "bob@chase",
-  "amount": 250.00,
+  "receiver": "bob@scbank",
+  "amount": 250,
   "currency": "USD"
 }'
 ```
 
 ```json Response
 {
-  "success": true,
-  "data": {
     "id": "tx_987654321",
     "sender": "alice@acme",
     "receiver": "bob@chase",
-    "amount": 250.00,
+    "amount": 250,
     "currency": "USD",
+    "status": "completed",
     "created_at": "2026-07-10T00:22:00Z"
   }
-}
+```
+
+</CodeGroup>
+
+## **4. Set up webhooks**
+
+Now you can set up webhooks to receive real-time transfer updates.
+
+<CodeGroup>
+
+```bash cURL Request
+curl --location --request POST 'https://api.zelkea.com/webhooks' \
+--header 'Authorization: Bearer \$ZELKEA_API_KEY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "url": "https://domain.com/webhooks",
+}'
+```
+
+```json Response
+{
+    "url": "https://domain.com/webhooks",
+    "secret": "whsec_ee4...",
+  }
 ```
 
 </CodeGroup>
