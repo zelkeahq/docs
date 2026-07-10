@@ -1,3 +1,67 @@
 ---
 title: "Creator economy"
+description: "Pay creators directly, wherever they bank, without a payout minimum or a platform cut lost to fees."
 ---
+
+If you're building a platform where creators, freelancers, or contributors get paid — tips, subscriptions, revenue share — the hard part has never been collecting money from fans. It's been getting that money _out_ to creators who might be in a different country, banked by an institution your payout provider doesn't support.
+
+Zelkea handles both directions with the same two calls: [Payments](/payments) to collect, [Transfers](/transfers) to pay out.
+
+## Collecting a tip or subscription
+
+A fan pays with their handle and a one-time code, exactly like any other checkout:
+
+```bash Collect a tip
+curl --request POST 'https://api.zelkea.com/payments' \
+  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header 'idempotency-key: 8e7f6a5b-4c7b-9e4a-3c2d-1e4f5a8b6c9d' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+    "customer": "fan22@wave",
+    "amount": 5,
+    "currency": "USD",
+    "code": "P8L3Z1"
+  }'
+```
+
+## Paying the creator out — same day, not next month
+
+Most platforms batch payouts weekly or monthly because moving money to individual creators, especially across borders, is expensive and slow through traditional rails. With Zelkea, paying a creator is just a transfer to their handle:
+
+```bash Pay out a creator
+curl --request POST 'https://api.zelkea.com/transfers' \
+  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header 'idempotency-key: 9e4a3c2d-1e4f-5a8b-6c9d-8e7f6a5b4c7b' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+    "sender": "platform@us",
+    "receiver": "creator99@djamo",
+    "amount": 4.50,
+    "currency": "USD"
+  }'
+```
+
+Note the creator is banked through a completely different institution than the platform — that's the point. Neither side needed to know or care what the other uses.
+
+## Splitting revenue automatically
+
+If a payment needs to be divided the moment it's collected — a platform fee plus a creator share, or a multi-creator collaboration — do it in one call instead of collecting the full amount and paying out separately:
+
+```json Platform fee + creator share, in one transaction
+{
+  "customer": "fan22@wave",
+  "amount": 10,
+  "currency": "USD",
+  "code": "P8L3Z1",
+  "splits": [
+    { "handle": "creator99@djamo", "amount": 8.50 },
+    { "handle": "platform@us", "amount": 1.50 }
+  ]
+}
+```
+
+The creator gets their share instantly — no waiting on the platform to run a payout batch, and no moment where the platform is holding the creator's money in transit.
+
+## Why same-day payouts matter here specifically
+
+Creators, especially early on, often depend on this income directly. A payout that clears in seconds instead of sitting in a "next payout: in 12 days" queue is a real difference in a real person's week, not just a nicer number on a dashboard.
