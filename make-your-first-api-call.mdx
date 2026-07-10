@@ -25,7 +25,7 @@ Every user on the network needs a unique payment handle (`user@domain`) to route
 
 <RequestExample>
 
-```bash Request
+```bash title="Create handle request"
 curl -X POST https://api.zelkea.com/handles \
   -H "Authorization: Bearer $ZELKEA_API_KEY" \
   -H "Content-Type: application/json" \
@@ -43,7 +43,7 @@ curl -X POST https://api.zelkea.com/handles \
 
 <ResponseExample>
 
-```json Response
+```json title="Create handle response"
 {
   "success": true,
   "data": {
@@ -66,7 +66,7 @@ Move funds instantly across the network from an authorized sender handle to a re
 
 <RequestExample>
 
-```bash Request
+```bash title="Create transfer request"
 curl -X POST https://api.zelkea.com/transfers \
   -H "Authorization: Bearer $ZELKEA_API_KEY" \
   -H "idempotency-key: 7b9e4a3c-2d1e-4f5a-8b6c-9d8e7f6a5b4c" \
@@ -83,7 +83,7 @@ curl -X POST https://api.zelkea.com/transfers \
 
 <ResponseExample>
 
-```json Response
+```json title="Create transfer response"
 {
   "success": true,
   "data": {
