@@ -61,3 +61,42 @@ curl -X POST [https://api.zelkea.com/handles](https://api.zelkea.com/handles) \
 ```
 
 </ResponseExample>
+
+## 3. Execute a transfer
+
+Move funds instantly across the network from an authorized sender handle to a receiver handle. You must include a unique UUID as an `idempotency-key` header to prevent double-processing.
+
+<RequestExample>
+
+```text filename
+curl -X POST [https://api.zelkea.com/transfers](https://api.zelkea.com/transfers) \
+  -H "Authorization: Bearer $ZELKEA_API_KEY" \
+  -H "idempotency-key: 7b9e4a3c-2d1e-4f5a-8b6c-9d8e7f6a5b4c" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sender": "alice@acme",
+    "receiver": "bob@chase",
+    "amount": 250.00,
+    "currency": "USD"
+  }'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```text filename
+{
+  "success": true,
+  "data": {
+    "id": "tx_987654321",
+    "sender": "alice@acme",
+    "receiver": "bob@chase",
+    "amount": 250.00,
+    "currency": "USD",
+    "created_at": "2026-07-10T00:22:00Z"
+  }
+}
+```
+
+</ResponseExample>
