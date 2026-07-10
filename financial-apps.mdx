@@ -1,3 +1,68 @@
 ---
 title: "Financial apps"
+description: "Build a neobank, wallet, or savings app without integrating a payment rail for every country you launch in."
 ---
+
+If you're building a neobank, a savings app, or any product where users hold a balance and move money in and out of it, you're an [institution](/institutions) — even if you're small, even if you haven't got a banking license yet and are operating under a partner bank's.
+
+The problem this solves: normally, launching in a new country means a new integration — a new mobile money API here, a new local bank rail there, each with its own auth, its own quirks, its own support team to build a relationship with. Zelkea replaces all of that with one integration that already reaches every other institution on the network.
+
+## What this actually looks like
+
+Your app issues a handle to every user the moment they sign up. From then on, that handle is how they send, receive, and get paid — inside your app, but also from anyone else on the network.
+
+```bash Issue a handle when a user signs up
+curl --request POST 'https://api.zelkea.com/handles' \
+  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+    "handle": "sara.k",
+    "balance": 0,
+    "currency": "USD",
+    "limit": 2000,
+    "code": "9F3K7Q",
+    "status": "active"
+  }'
+```
+
+Now `sara.k@yourapp` exists on the network. She can receive a salary payment from a business, send money to a friend at a different bank, or pay a merchant — all without you building a single extra integration.
+
+## Letting users send money
+
+A "send to a friend" button in your app is a transfer call, nothing more:
+
+```bash Send money to another handle
+curl --request POST 'https://api.zelkea.com/transfers' \
+  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header 'idempotency-key: 3c2d1e4f-5a8b-6c9d-8e7f-6a5b4c7b9e4a' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+    "sender": "sara.k@yourapp",
+    "receiver": "malick@mpesa",
+    "amount": 50,
+    "currency": "USD"
+  }'
+```
+
+Sara never needed Malick's bank details, and you never needed to know M-Pesa's API — the handle carried all of that.
+
+## Keeping balances accurate in real time
+
+Since Zelkea doesn't hold a ledger for you, your app's job is to listen and react:
+
+```bash Register a webhook once
+curl --request POST 'https://api.zelkea.com/webhooks' \
+  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+    "url": "https://yourapp.com/webhooks/zelkea"
+  }'
+```
+
+Every `transfer.completed` or `payment.completed` event that touches one of your users' handles lands here the instant it happens — that's your signal to update the balance shown in your app.
+
+## Common patterns
+
+- **Savings app** — hold user balances, let them move money in from any institution without a separate deposit flow.
+- **Payroll app** — pay out salaries as transfers directly to each employee's handle, wherever they bank.
+- **Multi-currency wallet** — one handle, funded and spent across borders without opening a local account in each country.

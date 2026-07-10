@@ -1,3 +1,71 @@
 ---
 title: "Overview"
+description: "The core building blocks of the Zelkea network, in plain terms."
 ---
+
+Zelkea moves money between two kinds of accounts, using one kind of address.
+
+That's really it. Everything else in these docs is detail on top of that one idea.
+
+## The three things you need to know
+
+<CardGroup cols={3}>
+  <Card title="Institutions" icon="building-columns" href="/institutions">
+    Banks and fintechs. They issue handles and hold the compliance relationship with the end user.
+  </Card>
+
+  <Card title="Businesses" icon="store" href="/businesses">
+    Merchants and platforms. They collect money using a handle, nothing else.
+  </Card>
+
+  <Card title="Handles" icon="at" href="/handles">
+    The address money moves to. Replaces account numbers, card numbers, and wallet IDs.
+  </Card>
+</CardGroup>
+
+## How a payment actually moves
+
+Say `malick@mpesa` wants to pay `netflix@us` \$14.99.
+
+1. Netflix (a **business**) calls `POST /payments` with Malick's handle, the amount, and a one-time code Malick gave them.
+2. Zelkea looks up which **institution** issued `malick@mpesa` — in this case, M-Pesa.
+3. Zelkea instructs a same-day settlement between M-Pesa's balance and Netflix's balance.
+4. Both sides get a webhook the moment it lands. No polling, no waiting.
+
+No card numbers changed hands. No bank details were typed anywhere. Netflix never even needed to know M-Pesa exists as a company — the handle was the only thing that mattered.
+
+## Two ways money moves
+
+<Columns cols={2}>
+  <Card title="Transfers" href="/transfers">
+    Handle-to-handle. One sender, one receiver. Used for P2P, remittances, and institution-to-institution settlement.
+  </Card>
+
+  <Card title="Payments" href="/payments">
+    Customer-to-business. Authorized with a one-time code. Can split a single payment across multiple recipients.
+  </Card>
+</Columns>
+
+<Tip>
+  If money is moving **between two people or two institutions**, you want Transfers. If a **business is getting paid** by a customer, you want Payments. That's the only decision you need to make.
+</Tip>
+
+## What Zelkea doesn't do
+
+This matters as much as what it does do:
+
+- **Zelkea doesn't hold a ledger for you.** Your institution's balance is your source of truth — Zelkea just moves money and tells you when it happened.
+- **Zelkea doesn't reverse transactions.** Transfers settle instantly and are final. If money needs to come back, that's a new transfer, initiated by whoever's responsible for that relationship — same as a real bank wire.
+- **Zelkea doesn't see or store sensitive banking details.** A handle never contains an account number, card number, or wallet ID. That information stays inside the issuing institution.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Make your first API call" icon="terminal" href="/make-your-first-api-call">
+    Register a handle and send a real transfer in under five minutes.
+  </Card>
+
+  <Card title="Platform overview" icon="layers" href="/platform-overview">
+    A deeper look at the architecture and transaction types.
+  </Card>
+</CardGroup>

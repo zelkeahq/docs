@@ -1,3 +1,82 @@
 ---
 title: "Businesses"
 ---
+
+A business is any company that gets paid — a merchant, a SaaS platform, a marketplace — but doesn't hold customer deposits itself. If you're building a checkout, not a bank account, this is you.
+
+<Note>
+  Businesses use the [Payments API](/payments) to collect money. They can't move money directly between two other handles — that's reserved for [Institutions](/institutions), since it requires holding the compliance relationship with the sender.
+</Note>
+
+## What a business actually does
+
+- **Gets a handle under its country's domain.** For example `netflix@us` or `shop@jp`. This is what customers pay to — no merchant account, no gateway credentials, no PCI scope.
+- **Collects payments with a customer's handle and a one-time code.** The customer generates the code on their institution's app; you never see or store anything more sensitive than that.
+- **Gets paid instantly, in the currency you registered in.** No 2-3 day settlement delay, no payout batching.
+
+## Collecting a payment
+
+Say a customer wants to pay `netflix@us` \$14.99 using their `malick@mpesa` handle. Malick opens his M-Pesa app, generates a one-time code, and gives it to you at checkout — the same motion as typing a card CVV, just without the card.
+
+```bash Charge a customer
+curl --request POST 'https://api.zelkea.com/payments' \
+  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header 'idempotency-key: 7b9e4a3c-2d1e-4f5a-8b6c-9d8e7f6a5b4c' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+    "customer": "malick@mpesa",
+    "amount": 14.99,
+    "currency": "USD",
+    "code": "7X9K2M"
+  }'
+```
+
+```json Response
+{
+  "id": "pmt_a1b2c3d4",
+  "merchant": "netflix@us",
+  "customer": "malick@mpesa",
+  "amount": 14.99,
+  "currency": "USD",
+  "status": "completed",
+  "created_at": "2026-07-10T00:22:00Z"
+}
+```
+
+The code is single-use — it's rotated automatically the moment it's spent, so it can't be replayed even if it leaks.
+
+## Splitting a payment across multiple recipients
+
+If you're a marketplace, you don't have to collect the full amount yourself and pay out separately. Splits happen inside the same transaction:
+
+```json Split example
+{
+  "customer": "malick@mpesa",
+  "amount": 100,
+  "currency": "USD",
+  "code": "7X9K2M",
+  "splits": [
+    { "handle": "vendor1@us", "amount": 70 },
+    { "handle": "vendor2@us", "amount": 30 }
+  ]
+}
+```
+
+Both vendors receive their share instantly and directly — you never hold the full \$100 and push it back out yourself.
+
+## Getting paid means knowing you got paid
+
+Poll for it, or get told the instant it happens:
+
+```bash List payments received
+curl --request GET 'https://api.zelkea.com/payments' \
+  --header "Authorization: Bearer $ZELKEA_API_KEY"
+```
+
+Or better — [register a webhook](/webhooks) once, and get a `payment.completed` event pushed to you the moment any payment lands, whether it came through your checkout flow or as one leg of someone else's split.
+
+## Common use cases
+
+- A subscription SaaS billing customers directly from their bank or mobile wallet balance, no card required.
+- A marketplace splitting a single checkout across several sellers in one transaction.
+- A physical retailer accepting payment with nothing but a handle and a code — no POS terminal, no card reader.

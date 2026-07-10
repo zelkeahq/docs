@@ -1,3 +1,56 @@
 ---
 title: "Global payments"
+description: "Send money across borders without a correspondent bank, an FX desk, or a multi-day settlement window."
 ---
+
+Cross-border payments have traditionally meant one of two things: a correspondent banking relationship (slow, expensive, requires pre-funded accounts in every corridor), or a patchwork of local integrations, one per country you actually need to reach. Zelkea replaces both with the same call you'd use to send money domestically.
+
+## A transfer doesn't care which country it's going to
+
+There's no separate "international transfer" endpoint. `sender` and `receiver` are just handles — if the institutions behind them happen to be in different countries, nothing about the request changes:
+
+```bash Send from Dakar to Tokyo
+curl --request POST 'https://api.zelkea.com/transfers' \
+  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header 'idempotency-key: 1e4f5a8b-6c9d-8e7f-6a5b-4c7b9e4a3c2d' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+    "sender": "tom@ecobank",
+    "receiver": "restaurant1@jp",
+    "amount": 40,
+    "currency": "USD"
+  }'
+```
+
+```json Response
+{
+  "id": "tx_f9k2m7",
+  "sender": "tom@ecobank",
+  "receiver": "restaurant1@jp",
+  "amount": 40,
+  "currency": "USD",
+  "status": "completed",
+  "created_at": "2026-07-10T14:02:33Z",
+  "reference": "dinner-tokyo-trip"
+}
+```
+
+Tom never opened a Japanese bank account, and the restaurant never needed to know what Ecobank is. The handle is the only thing that had to be correct.
+
+## Why this doesn't need a correspondent bank
+
+Traditional cross-border transfers rely on a chain of correspondent banks, each taking a cut and adding a day of settlement delay — sometimes several. Zelkea settles directly between the two institutions' balances on the network, in one hop, regardless of how many countries sit between them geographically.
+
+## What currently works, and what's next
+
+<Note>
+  Zelkea currently settles in **USD**, with **EUR** supported for transactions. Currency coverage is expanding based on institution demand — see [What we support](/what-we-support) for the current list of supported countries and currencies.
+</Note>
+
+If your institution needs a currency that isn't live yet, that's useful signal for us — reach out at [support@zelkea.com](mailto:support@zelkea.com).
+
+## Common use cases
+
+- **A traveler paying a local merchant abroad** — no currency exchange counter, no foreign transaction fee tacked on by a card network.
+- **A worker sending remittances home** — instant settlement instead of a multi-day wait, at a fraction of what traditional remittance corridors charge.
+- **A business paying an overseas supplier** — one transfer call, regardless of which country the supplier's bank is in.

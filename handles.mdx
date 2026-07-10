@@ -1,3 +1,79 @@
 ---
 title: "Handles"
+description: "The address that replaces account numbers, card numbers, and wallet IDs."
 ---
+
+A handle looks like an email address — `alice@acme` — and works the same way: simple to remember, safe to share, and it doesn't matter what's actually underneath it.
+
+That's the whole idea behind handles. Instead of asking someone for a 16-digit card number or a routing and account number, you just ask for their handle.
+
+## What's actually in a handle
+
+Two parts, split by `@`:
+
+- **The user part** (`alice`) — chosen by the person, unique within their institution.
+- **The domain part** (`acme`) — owned by the institution that issued it. Automatically appended, you never type it yourself when creating one.
+
+Nothing about the handle reveals a bank account number, a card number, or a wallet ID. Those stay inside the issuing institution, exactly where they are today — the handle is just a pointer to them.
+
+## Only institutions issue handles
+
+If you're a business collecting payments, you don't create handles — your customers already have one, issued by their own bank or wallet provider. You just need to ask for it at checkout.
+
+If you're an institution, here's what a handle actually holds:
+
+| Field | What it's for |
+| :-- | :-- |
+| `handle` | The identifier itself, before the domain is appended |
+| `balance` | Used to check whether an outbound transfer is affordable |
+| `limit` | The maximum a single transaction from this handle can move |
+| `code` | A one-time authorization code, rotated after every use |
+| `status` | `active`, `restricted`, or `inactive` — controls whether the handle can transact at all |
+
+## Creating one
+
+```bash Create a handle
+curl --request POST 'https://api.zelkea.com/handles' \
+  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+    "handle": "alice",
+    "balance": 1000,
+    "currency": "USD",
+    "limit": 5000,
+    "code": "XSO2B9",
+    "status": "active"
+  }'
+```
+
+```json Response
+{
+  "handle": "alice@acme",
+  "balance": 1000,
+  "currency": "USD",
+  "limit": 5000,
+  "status": "active",
+  "created_at": "2026-07-10T00:21:49Z"
+}
+```
+
+## Updating one
+
+Balances change, limits get adjusted, accounts get frozen. Update only what changed:
+
+```bash Freeze a handle
+curl --request PATCH 'https://api.zelkea.com/handles/alice@acme' \
+  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+    "status": "restricted"
+  }'
+```
+
+<Warning>
+  A handle's `code` resets automatically every time it's used to authorize a payment. If you're building a customer-facing app, make sure your UI always shows the _current_ code, not a cached one — an expired code will get rejected.
+</Warning>
+
+## Why not just use one global identity instead?
+
+Because a handle deliberately belongs to the institution that issues it, not to Zelkea. That's what lets your compliance, your KYC, your risk decisions travel with the handle wherever it's used on the network — Zelkea never becomes a second identity system you have to keep in sync with your real one.
