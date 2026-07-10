@@ -25,11 +25,11 @@ Every user on the network needs a unique payment handle (`user@domain`) to route
 
 <RequestExample>
 
-```text Create a handle
-curl -X POST "https://api.zelkea.com/handles" \
--H "Authorization: Bearer $ZELKEA_API_KEY" \
--H "Content-Type: application/json" \
--d '{
+```text Create a handle twoslash
+curl --location --request POST 'https://api.zelkea.com/handles' \
+--header 'Authorization: Bearer $ZELKEA_API_KEY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
   "handle": "alice",
   "balance": 1000.00,
   "currency": "USD",
