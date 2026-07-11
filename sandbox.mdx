@@ -1,0 +1,79 @@
+---
+title: "Sandbox"
+description: "Test your integration end to end without moving real money."
+---
+
+The sandbox is a fully separate environment from production — separate base URL, separate API keys, separate data. Nothing you do here touches real funds or real institutions.
+
+## Base URL
+
+| Environment | Base URL |
+| :-- | :-- |
+| Sandbox | `https://sandbox.zelkea.com` |
+| Production | `https://api.zelkea.com` |
+
+Every endpoint documented in the [API Reference](/authentication) works identically in both — only the host changes. A request that works in sandbox will work in production once you swap the URL and the key.
+
+## Getting sandbox keys
+
+Sandbox keys are separate from production keys and are available immediately, without the onboarding steps required for production access — see [Sign up your institution](/make-your-first-api-call#1-sign-up-your-institution) for the general flow, then switch to the **Sandbox** view in your [dashboard](https://app.zelkea.com) to generate a sandbox key.
+
+```bash
+ZELKEA_API_KEY="sk_sandbox_..."
+```
+
+<Tip>
+  Sandbox keys are prefixed differently from production keys, so it's obvious at a glance which environment a key belongs to — worth checking this before pasting a key into code you're about to deploy.
+</Tip>
+
+## What's different in sandbox
+
+- **No real money moves.** Transfers and payments settle instantly, exactly like production, but funds never leave or enter a real account anywhere.
+- **No live institution required.** You can create test handles under a sandbox domain without a real bank or wallet backing them.
+- **Idempotency and errors behave identically.** If your integration handles retries and error codes correctly in sandbox, it'll behave the same way in production — this is the environment to actually break things in.
+- **Webhooks work the same way.** Register a sandbox webhook URL separately from your production one; sandbox events are signed with a sandbox-specific secret.
+
+## A full sandbox test loop
+
+```bash 1. Create a test handle
+curl --request POST 'https://sandbox.zelkea.com/handles' \
+  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+    "handle": "testuser",
+    "balance": 1000,
+    "currency": "USD",
+    "limit": 5000,
+    "code": "TEST01",
+    "status": "active"
+  }'
+```
+
+```bash 2. Send a test transfer
+curl --request POST 'https://sandbox.zelkea.com/transfers' \
+  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header 'idempotency-key: 1e4f5a8b-6c9d-8e7f-6a5b-4c7b9e4a3c2d' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+    "sender": "testuser@yourdomain",
+    "receiver": "another@sandboxbank",
+    "amount": 10,
+    "currency": "USD"
+  }'
+```
+
+```bash 3. Confirm it landed
+curl --request GET 'https://sandbox.zelkea.com/transfers/testuser@yourdomain' \
+  --header "Authorization: Bearer $ZELKEA_API_KEY"
+```
+
+## Moving to production
+
+Sandbox and production data never mix — a handle created in sandbox doesn't exist in production, and vice versa. When you're ready to go live:
+
+1. Complete production onboarding for your institution or business from your [dashboard](https://app.zelkea.com).
+2. Generate a production API key.
+3. Swap `sandbox.zelkea.com` for `api.zelkea.com`, and your sandbox key for your production key.
+4. Re-register any webhook URLs — sandbox webhook configuration doesn't carry over.
+
+Nothing else about your integration should need to change.

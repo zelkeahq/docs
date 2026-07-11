@@ -1,3 +1,131 @@
 ---
 title: "Webhooks"
+description: "Get notified the instant money moves, instead of polling for it."
 ---
+
+Every transfer and payment on Zelkea settles instantly — but your own system still needs to find out it happened. Webhooks are how. Register a URL once, and Zelkea pushes an event to it the moment money touches one of your handles.
+
+<Note>
+  This page covers the concept. For the raw request/response shapes, see [Register a webhook endpoint](/api-reference/webhooks/register-a-webhook-endpoint), [Get the registered webhook configuration](/api-reference/webhooks/get-the-registered-webhook-configuration), and [Remove the registered webhook](/api-reference/webhooks/remove-the-registered-webhook).
+</Note>
+
+## Registering an endpoint
+
+```bash Register a webhook
+curl --request POST 'https://api.zelkea.com/webhooks' \
+  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+    "url": "https://yourapp.com/webhooks/zelkea"
+  }'
+```
+
+```json Response
+{
+  "url": "https://yourapp.com/webhooks/zelkea",
+  "secret": "whsec_4f2a1c9e8b7d6f5a3c2e1d9b8f7a6c5e"
+}
+```
+
+<Warning>
+  The `secret` is shown **once**, at creation. Store it immediately — there's no way to retrieve it again later. If you lose it, register again to get a new one; this replaces your existing configuration.
+</Warning>
+
+One institution or business has one webhook URL. Registering again overwrites the previous one and issues a new secret — the old secret stops working immediately.
+
+## What you receive
+
+Every delivery has the same envelope, regardless of event type:
+
+```json Event envelope
+{
+  "id": "evt_8f2a1c9e",
+  "type": "transfer.completed",
+  "created_at": "2026-07-10T09:15:00.000Z",
+  "data": { }
+}
+```
+
+| Event | Fires when |
+| :-- | :-- |
+| `transfer.completed` | A transfer involving one of your handles settles — you'll receive one event as the sender's institution, one as the receiver's. |
+| `payment.completed` | A payment involving your business settles — as the merchant, or as any recipient in a split. |
+
+```json transfer.completed payload
+{
+  "id": "tx_987654321",
+  "sender": "alice@acme",
+  "receiver": "bob@scbank",
+  "amount": 250,
+  "currency": "USD",
+  "created_at": "2026-07-10T09:15:00.000Z",
+  "reference": "invoice-4471"
+}
+```
+
+```json payment.completed payload
+{
+  "id": "pmt_a1b2c3d4",
+  "direction": "inbound",
+  "handle": "netflix@us",
+  "customer": "malick@mpesa",
+  "amount": 14.99,
+  "currency": "USD",
+  "created_at": "2026-07-10T09:15:00.000Z",
+  "splits": [
+    { "handle": "netflix@us", "amount": 14.99 }
+  ]
+}
+```
+
+`direction` is `inbound` if you received money, `outbound` if it left one of your handles — this is how a single institution's webhook endpoint can tell the two apart without inspecting the rest of the payload.
+
+## Verifying a delivery is really from Zelkea
+
+Every request carries a `Zelkea-Signature` header. Verify it before trusting the body — anyone can POST JSON to a public URL, this is what proves it came from us.
+
+```text
+Zelkea-Signature: t=1752134100,v1=5257a869e7ecebeda32affa62cdca3fa51cad7e77a0e56ff536d0ce8e108d8bd
+```
+
+```javascript Node.js verification example
+const crypto = require("crypto");
+
+function verifyZelkeaWebhook(rawBody, signatureHeader, secret) {
+  const [tPart, v1Part] = signatureHeader.split(",");
+  const timestamp = Number(tPart.split("=")[1]);
+  const signature = v1Part.split("=")[1];
+
+  const expected = crypto
+    .createHmac("sha256", secret)
+    .update(`${timestamp}.${rawBody}`)
+    .digest("hex");
+
+  const isValid = crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(expected),
+  );
+  const isFresh = Math.abs(Date.now() / 1000 - timestamp) < 300; // 5 min window
+
+  return isValid && isFresh;
+}
+```
+
+<Warning>
+  Always compute the signature against the **raw request body**, before any JSON parsing or re-serialization. Re-stringifying the parsed body can produce different bytes (key order, whitespace) and cause valid signatures to fail verification.
+</Warning>
+
+## Retries and failure
+
+If your endpoint doesn't respond with a 2xx status, or doesn't respond within 10 seconds, Zelkea retries with backoff — up to 5 attempts total. After that, the event stops being retried automatically.
+
+Two things worth building for on your end:
+
+- **Respond fast, process after.** Acknowledge the event with a 2xx immediately, then do your actual processing asynchronously. An endpoint that does slow work before responding is more likely to time out and trigger unnecessary retries.
+- **Dedupe on `id`, not on the transaction details.** Because of retries, you may receive the same event more than once. Use the event's `id` (not the transfer/payment `id` inside `data`) to recognize a delivery you've already processed.
+
+## Best practices
+
+- Respond with `200` even if you don't recognize the event `type` — new event types may be added over time, and a hard failure on an unrecognized type will just trigger retries for nothing.
+- Keep your endpoint on HTTPS. Zelkea won't deliver to plain HTTP URLs.
+- If you rotate your secret by re-registering, update your verification code before the old requests stop arriving — there's no overlap window where both secrets work.

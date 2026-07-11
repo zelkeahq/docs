@@ -1,0 +1,40 @@
+---
+title: "Security"
+description: "How Zelkea protects data and funds, and where we are in our compliance journey."
+---
+
+This page describes our current security posture plainly, including what we haven't finished yet. If you're evaluating Zelkea as part of a vendor security review, this is a starting point — reach out to [support@zelkea.com](mailto:support@zelkea.com) for anything not covered here.
+
+## Infrastructure
+
+Zelkea runs entirely on AWS. Our underlying infrastructure — compute, storage, and networking — operates within AWS data centers that hold their own independent certifications, including SOC 1, SOC 2, SOC 3, ISO 27001, and PCI DSS Level 1, as part of the [AWS Compliance Programs](https://aws.amazon.com/compliance/programs/).
+
+<Note>
+  This describes the infrastructure Zelkea is built on, not a certification of Zelkea itself. AWS's compliance covers the data centers and physical/network infrastructure layer — it doesn't automatically extend to how we, as a company, handle data, access control, or application-level security. Treat the two as related but separate.
+</Note>
+
+## Data in transit and at rest
+
+- All API traffic is served exclusively over HTTPS. Requests made over plain HTTP are rejected outright — see [Authentication](/authentication).
+- Data at rest is stored using AWS's standard encryption for our database and storage layers.
+- Webhook payloads are signed with HMAC-SHA256 per recipient, so a receiving institution can verify a delivery genuinely came from Zelkea — see [Webhooks](/webhooks).
+
+## What we don't store
+
+Zelkea never touches card numbers, CVVs, or full bank account credentials. The entire design of a [handle](/handles) exists specifically to avoid that: sensitive account details stay with the issuing institution, and Zelkea only ever sees the handle and the routing metadata needed to settle a transaction.
+
+Because of this, there is no cardholder data environment inside Zelkea's systems — we don't store, process, or transmit primary account numbers, magnetic stripe data, or CVVs at any point. If your own review process requires a formal PCI-DSS attestation from us regardless, let us know and we can discuss it directly.
+
+## API key handling
+
+- API keys are shown once, at creation, and can't be retrieved again afterward — see [Authentication](/authentication).
+- Keys carry permission scopes (for example, `payments:manage`, `transfers:manage`) and are limited to the actions your integration actually needs.
+- We recommend rotating keys periodically and immediately if you suspect exposure. Key rotation is available from your [dashboard](https://app.zelkea.com).
+
+## Where we are on formal certifications
+
+We do not currently hold SOC 2 or ISO 27001 certification. This is an active priority, not something we're deferring indefinitely — as our institutional partnerships mature, we're aligning our roadmap to formal certification with the specific bar our banking partners have set for us. If a certification timeline matters for your own vendor approval process, tell us directly — it helps us prioritize accordingly.
+
+## Reporting a security issue
+
+If you believe you've found a security vulnerability in Zelkea, please email [support@zelkea.com](mailto:support@zelkea.com) rather than filing a public issue or disclosing it elsewhere. We'll respond and work with you directly.

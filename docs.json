@@ -130,7 +130,11 @@
           {
             "group": "Building on Zelkea",
             "pages": [
-              "webhooks"
+              "webhooks",
+              "errors",
+              "security",
+              "sandbox",
+              "sdks"
             ]
           }
         ]
