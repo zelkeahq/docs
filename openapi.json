@@ -18,10 +18,6 @@
   ],
   "tags": [
     {
-      "name": "Accounts",
-      "description": "Create and fetch virtual accounts"
-    },
-    {
       "name": "Handles",
       "description": "Create, update, and inspect payment handles"
     },
@@ -39,106 +35,6 @@
     }
   ],
   "paths": {
-    "/accounts/{organization_id}": {
-      "post": {
-        "tags": [
-          "Accounts"
-        ],
-        "operationId": "createVirtualAccount",
-        "summary": "Create a virtual account for an organization",
-        "parameters": [
-          {
-            "name": "organization_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "$ref": "#/components/parameters/IdempotencyKey"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AccountRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Virtual account created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VirtualAccountResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "Accounts"
-        ],
-        "operationId": "getVirtualAccount",
-        "summary": "Get a virtual account for an organization",
-        "parameters": [
-          {
-            "name": "organization_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Virtual account fetched",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VirtualAccountResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          }
-        }
-      }
-    },
     "/handles": {
       "post": {
         "tags": [
