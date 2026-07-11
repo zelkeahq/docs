@@ -1,0 +1,119 @@
+---
+title: "Environments"
+description: "Develop safely in Sandbox before moving to Production."
+---
+
+Zelkea provides two completely isolated environments:
+
+| Environment | Base URL |
+| :-- | :-- |
+| Sandbox | `https://sandbox.zelkea.com` |
+| Production | `https://api.zelkea.com` |
+
+Both environments expose the same API, authentication, request formats, and response formats. In most cases, moving to production only requires changing your API key and the base URL.
+
+## Sandbox
+
+Sandbox is intended for development and end-to-end testing.
+
+Everything in sandbox is completely separate from production:
+
+- Separate API keys
+- Separate organizations
+- Separate balances
+- Separate transactions
+- Separate webhooks
+
+No action performed in sandbox will ever move real money or affect production data.
+
+You can safely create handles, fund balances, send transfers, receive webhooks, and test your complete integration before going live.
+
+## Funding your sandbox balance
+
+Unlike production, sandbox balances can be funded instantly using the simulation endpoint.
+
+```bash
+curl --request POST 'https://sandbox.zelkea.com/simulate-deposit' \
+  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header "idempotency-key: 8d5cf65d-56e4-43b4-a21c-7305dfe27d77" \
+  --header "Content-Type: application/json" \
+  --data-raw '{
+    "amount": "1000",
+    "currency": "USD"
+  }'
+```
+
+Supported currencies are:
+
+- `USD`
+- `EUR`
+
+Deposits are credited immediately and can be used to test transfers, payouts, and every balance-related API.
+
+<Tip>
+  The simulation endpoint only exists in the Sandbox environment and cannot be used in Production.
+</Tip>
+
+## Test handles
+
+Sandbox includes several public handles that you can use when testing transfers.
+
+| Handle | Purpose |
+| :-- | :-- |
+| `alice@sandbox` | Personal account |
+| `bob@sandbox` | Personal account |
+| `merchant@sandbox` | Business account |
+| `payroll@sandbox` | Business account |
+| `treasury@sandbox` | Institution account |
+
+For example, after funding your own sandbox balance, you can send a transfer to one of the sandbox handles:
+
+```bash
+curl --request POST 'https://sandbox.zelkea.com/transfers' \
+  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header "idempotency-key: cfd9d087-2219-43ef-bfe6-7c0df0b55b1e" \
+  --header "Content-Type: application/json" \
+  --data-raw '{
+    "sender": "alice@yourdomain",
+    "receiver": "merchant@sandbox",
+    "amount": 25,
+    "currency": "USD"
+  }'
+```
+
+Every endpoint behaves the same as Production, including validation, idempotency, error responses, and webhook delivery.
+
+## Production
+
+Production is used for live transactions involving real funds.
+
+Unlike Sandbox:
+
+- All transfers move real money.
+- Your organization must complete onboarding.
+- Production API keys are required.
+- Production webhooks must be configured separately.
+- Sandbox balances, handles, and transactions are not available.
+
+## Going live
+
+Once you've validated your integration in Sandbox, moving to Production requires only a few changes:
+
+1. Complete production onboarding.
+2. Generate a production API key.
+3. Change your base URL from:
+
+```text
+https://sandbox.zelkea.com
+```
+
+to:
+
+```text
+https://api.zelkea.com
+```
+
+4. Replace your sandbox API key with a production API key.
+5. Register your production webhook endpoint.
+
+Your integration logic should not need to change. The API is identical across both environments—the only differences are the base URL, credentials, and the fact that Production processes real funds.
