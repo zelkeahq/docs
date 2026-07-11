@@ -126,6 +126,12 @@
               "transfers",
               "payments"
             ]
+          },
+          {
+            "group": "Building on Zelkea",
+            "pages": [
+              "webhooks"
+            ]
           }
         ]
       },
