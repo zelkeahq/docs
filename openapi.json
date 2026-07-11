@@ -1214,23 +1214,6 @@
           "currency": {
             "type": "string"
           },
-          "allocations": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "handle": {
-                  "type": "string"
-                },
-                "amount": {
-                  "type": "number"
-                },
-                "transfer_id": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "client_reference_id": {
             "type": "string"
           },
