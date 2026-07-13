@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://api.zelkea.com",
+      "url": "https://sandbox.zelkea.com",
       "description": "Production"
     }
   ],
