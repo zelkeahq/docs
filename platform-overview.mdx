@@ -16,21 +16,21 @@ The core infrastructure relies on two main types of entities interacting on the 
 
 An institution is any regulated entity moving money on behalf of its customers.
 
-- **What they do:** They register their own top-level domains (like `@scbank` or `@momo`), issue user handles, perform local compliance (KYC/AML), and maintain a settlement balance with Zelkea.
+- **What they do:** They register their own top-level domains (like `@scbank` or `@payme`), issue user handles, perform local compliance (KYC/AML), and maintain a settlement balance with Zelkea.
 - **When to use:** When you are a licensed financial entity wanting to grant your existing user base global financial interoperability.
 
 ### Businesses
 
 Payment processors, merchants, SaaS platforms, and marketplaces that want to collect funds from customers globally.
 
-- **What they do:** Integrate the Zelkea API into their checkout flows to receive payments instantly under a business handle marked with their country's domain (like `netflix@us` or `shop@jp`)
+- **What they do:** Integrate the Zelkea API into their checkout flows to receive payments instantly under a business handle marked with their country's domain (like `company@us` or `shop@jp`)
 - **When to use:** When you need a single integration to accept global, multi-currency payments without maintaining separate payment gateways or managing payouts.
 
 ---
 
 ## Handles
 
-The secure, human-readable identifiers (`user@domain`) that replace sensitive banking information across the network.
+The secure, human-readable identifiers (`customer@domain`) that replace sensitive banking information across the network.
 
 - **What they do:** They act as a universal routing address. Zelkea maps the handle to the corresponding institution's balance to settle transactions without ever exposing bank account numbers, card details, or wallet identifiers.
 - **When to use:** Used to make online payments and send or receive money without sharing sensitive financial details.
