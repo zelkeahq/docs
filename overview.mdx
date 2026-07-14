@@ -25,14 +25,14 @@ That's really it. Everything else in these docs is detail on top of that one ide
 
 ## How a payment actually moves
 
-Say `malick@mpesa` wants to pay `netflix@us` \$14.99.
+Say `malick@wallet` wants to pay `company@us` \$14.99.
 
-1. Netflix (a **business**) calls `POST /payments` with Malick's handle, the amount, and a one-time code Malick gave them.
-2. Zelkea looks up which **institution** issued `malick@mpesa` — in this case, M-Pesa.
-3. Zelkea instructs a same-day settlement between M-Pesa's balance and Netflix's balance.
+1. Company (a **business**) calls `POST /payments` with Malick's handle, the amount, and a one-time code Malick gave them.
+2. Zelkea looks up which **institution** issued `malick@wallet` — in this case, a mobile wallet provider.
+3. Zelkea instructs an instant settlement between provider's balance and the company's balance.
 4. Both sides get a webhook the moment it lands. No polling, no waiting.
 
-No card numbers changed hands. No bank details were typed anywhere. Netflix never even needed to know M-Pesa exists as a company — the handle was the only thing that mattered.
+No card numbers changed hands. No bank details were typed anywhere. The company never even needed to know the wallet provider exists as a company — the handle was the only thing that mattered.
 
 ## Two ways money moves
 

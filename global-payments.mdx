@@ -15,7 +15,7 @@ curl --request POST 'https://api.zelkea.com/transfers' \
   --header 'idempotency-key: 1e4f5a8b-6c9d-8e7f-6a5b-4c7b9e4a3c2d' \
   --header 'Content-Type: application/json' \
   --data-raw '{
-    "sender": "tom@ecobank",
+    "sender": "tom@bank",
     "receiver": "restaurant1@jp",
     "amount": 40,
     "currency": "USD"
@@ -25,7 +25,7 @@ curl --request POST 'https://api.zelkea.com/transfers' \
 ```json Response
 {
   "id": "tx_f9k2m7",
-  "sender": "tom@ecobank",
+  "sender": "tom@bank",
   "receiver": "restaurant1@jp",
   "amount": 40,
   "currency": "USD",

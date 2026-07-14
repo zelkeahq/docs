@@ -17,7 +17,7 @@ curl --request POST 'https://api.zelkea.com/payments' \
   --header 'idempotency-key: 8e7f6a5b-4c7b-9e4a-3c2d-1e4f5a8b6c9d' \
   --header 'Content-Type: application/json' \
   --data-raw '{
-    "customer": "fan22@wave",
+    "customer": "fan22@bank",
     "amount": 5,
     "currency": "USD",
     "code": "P8L3Z1"
@@ -35,7 +35,7 @@ curl --request POST 'https://api.zelkea.com/transfers' \
   --header 'Content-Type: application/json' \
   --data-raw '{
     "sender": "platform@us",
-    "receiver": "creator99@djamo",
+    "receiver": "creator99@fr",
     "amount": 4.50,
     "currency": "USD"
   }'
@@ -49,12 +49,12 @@ If a payment needs to be divided the moment it's collected — a platform fee pl
 
 ```json Platform fee + creator share, in one transaction
 {
-  "customer": "fan22@wave",
+  "customer": "fan22@bank",
   "amount": 10,
   "currency": "USD",
   "code": "P8L3Z1",
   "splits": [
-    { "handle": "creator99@djamo", "amount": 8.50 },
+    { "handle": "creator99@fr", "amount": 8.50 },
     { "handle": "platform@us", "amount": 1.50 }
   ]
 }

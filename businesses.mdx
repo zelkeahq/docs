@@ -10,13 +10,13 @@ A business is any company that gets paid — a merchant, a SaaS platform, a mark
 
 ## What a business actually does
 
-- **Gets a handle under its country's domain.** For example `netflix@us` or `shop@jp`. This is what customers pay to — no merchant account, no gateway credentials, no PCI scope.
+- **Gets a handle under its country's domain.** For example `company@us` or `shop@jp`. This is what customers pay to — no merchant account, no gateway credentials, no PCI scope.
 - **Collects payments with a customer's handle and a one-time code.** The customer generates the code on their institution's app; you never see or store anything more sensitive than that.
 - **Gets paid instantly, in the currency you registered in.** No 2-3 day settlement delay, no payout batching.
 
 ## Collecting a payment
 
-Say a customer wants to pay `netflix@us` \$14.99 using their `malick@mpesa` handle. Malick opens his M-Pesa app, generates a one-time code, and gives it to you at checkout — the same motion as typing a card CVV, just without the card.
+Say a customer wants to pay `company@us` \$14.99 using their `malick@wallet` handle. Malick opens his wallet app, generates a one-time code, and gives it to you at checkout — the same motion as typing a card CVV, just without the card.
 
 ```bash Charge a customer
 curl --request POST 'https://api.zelkea.com/payments' \
@@ -24,7 +24,7 @@ curl --request POST 'https://api.zelkea.com/payments' \
   --header 'idempotency-key: 7b9e4a3c-2d1e-4f5a-8b6c-9d8e7f6a5b4c' \
   --header 'Content-Type: application/json' \
   --data-raw '{
-    "customer": "malick@mpesa",
+    "customer": "malick@wallet",
     "amount": 14.99,
     "currency": "USD",
     "code": "7X9K2M"
@@ -34,8 +34,8 @@ curl --request POST 'https://api.zelkea.com/payments' \
 ```json Response
 {
   "id": "pmt_a1b2c3d4",
-  "merchant": "netflix@us",
-  "customer": "malick@mpesa",
+  "merchant": "company@us",
+  "customer": "malick@wallet",
   "amount": 14.99,
   "currency": "USD",
   "status": "completed",
@@ -51,7 +51,7 @@ If you're a marketplace, you don't have to collect the full amount yourself and 
 
 ```json Split example
 {
-  "customer": "malick@mpesa",
+  "customer": "malick@wallet",
   "amount": 100,
   "currency": "USD",
   "code": "7X9K2M",
