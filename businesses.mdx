@@ -16,7 +16,7 @@ A business is any company that gets paid — a merchant, a SaaS platform, a mark
 
 ## Collecting a payment
 
-Say a customer wants to pay `company@us` \$14.99 using their `malick@wallet` handle. Malick opens his wallet app, generates a one-time code, and gives it to you at checkout — the same motion as typing a card CVV, just without the card.
+Say a customer wants to pay `company@us` \$14.99 using their `malick@wallet` handle. Malick opens his wallet app, generates a one-time code, and gives it to you at checkout — the same motion as typing a card CVV, just without the card. 
 
 ```bash Charge a customer
 curl --request POST 'https://api.zelkea.com/payments' \
@@ -56,7 +56,7 @@ If you're a marketplace, you don't have to collect the full amount yourself and 
   "currency": "USD",
   "code": "7X9K2M",
   "splits": [
-    { "handle": "vendor1@us", "amount": 70 },
+    { "handle": "vendor1@fr", "amount": 70 },
     { "handle": "vendor2@us", "amount": 30 }
   ]
 }
