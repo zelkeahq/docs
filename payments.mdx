@@ -25,7 +25,7 @@ curl --request POST 'https://api.zelkea.com/payments' \
   --header 'idempotency-key: 4f5a8b6c-9d8e-7f6a-5b4c-7b9e4a3c2d1e' \
   --header 'Content-Type: application/json' \
   --data-raw '{
-    "customer": "malick@mpesa",
+    "customer": "malick@wallet",
     "amount": 14.99,
     "currency": "USD",
     "code": "7X9K2M"
@@ -35,8 +35,8 @@ curl --request POST 'https://api.zelkea.com/payments' \
 ```json Response
 {
   "id": "pmt_a1b2c3d4",
-  "merchant": "netflix@us",
-  "customer": "malick@mpesa",
+  "merchant": "company@us",
+  "customer": "wallet@mpesa",
   "amount": 14.99,
   "currency": "USD",
   "status": "completed",
@@ -52,13 +52,13 @@ A single customer payment can be divided across multiple recipients in one call 
 
 ```json Marketplace split
 {
-  "customer": "malick@mpesa",
+  "customer": "malick@wallet",
   "amount": 100,
   "currency": "USD",
   "code": "7X9K2M",
   "splits": [
     { "handle": "vendor1@us", "amount": 70 },
-    { "handle": "vendor2@us", "amount": 30 }
+    { "handle": "vendor2@ca", "amount": 30 }
   ]
 }
 ```
