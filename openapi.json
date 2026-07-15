@@ -965,7 +965,7 @@
           "currency": {
             "type": "string"
           },
-          "client_reference_id": {
+          "reference": {
             "type": "string"
           },
           "created_at": {
