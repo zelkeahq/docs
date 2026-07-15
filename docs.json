@@ -145,11 +145,11 @@
         "pages": [
           "authentication",
           "idempotency",
-          "environments",
           {
             "group": "Endpoints",
             "openapi": "openapi.json"
-          }
+          },
+          "environments"
         ]
       }
     ]
