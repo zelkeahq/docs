@@ -1,58 +1,21 @@
 ---
 title: "Physical retail"
-description: "Accept in-person payments without a card reader, a POS terminal, or a percentage lost to card networks."
+description: "Get paid by customers in person without a card reader, a POS terminal, or losing a percentage to card networks."
 ---
 
-A physical retailer accepting Zelkea doesn't need any hardware. No card reader, no POS terminal, no monthly rental fee for a machine that breaks the week your busiest season starts. Just a [business handle](/businesses) and the customer's authorization code.
+A physical retailer with a Zelkea handle can receive in-person payments without any additional hardware. No card reader, no POS terminal, and no monthly equipment fees. All they need is a Zelkea business account or an account at a participating financial institution.
 
 ## What the transaction looks like at the counter
 
-The customer opens their banking or wallet app, generates a one-time code, and reads it to the cashier — the same motion as reading out a CVV, except this code can't be reused even if someone overhears it.
+The customer opens their banking or wallet app, enters the merchant's handle, such as `shop@ca`, and enters the amount. It works like sending money to a friend or family member. The payment is delivered instantly to the merchant's bank account or Zelkea account, regardless of which bank or wallet the customer uses.
 
-```bash Charge the customer at checkout
-curl --request POST 'https://api.zelkea.com/payments' \
-  --header "Authorization: Bearer $ZELKEA_API_KEY" \
-  --header 'idempotency-key: 6a5b4c7b-9e4a-3c2d-1e4f-5a8b6c9d8e7f' \
-  --header 'Content-Type: application/json' \
-  --data-raw '{
-    "customer": "malick@wallet",
-    "amount": 8.50,
-    "currency": "USD",
-    "code": "4K7X2M"
-  }'
-```
+## Why this matters for small businesses
 
-```json Response
-{
-  "id": "pmt_r8t2v9",
-  "merchant": "cornerstore@ke",
-  "customer": "malick@wallet",
-  "amount": 8.50,
-  "currency": "USD",
-  "status": "completed",
-  "created_at": "2026-07-10T09:12:44Z"
-}
-```
+Traditional card payments often come with transaction fees, hardware costs, and payout delays. With Zelkea, none of these apply:
 
-Money lands in the merchant's balance instantly — no next-day settlement, no batching, no waiting for a card network to release funds.
+- **No hardware** — Displaying or sharing your handle is all you need to receive payments.
+- **No payout delays** — Funds are available as soon as the customer completes the payment, making it easier to pay suppliers and manage cash flow.
+- **No card-related fraud risks** — There are no card numbers to steal, clone, or expose because the payment does not rely on cards.
+- **Simple pricing** — A transfer through Zelkea costs \$0.10 regardless of the amount, paid by the customer. The merchant receives the full amount.
 
-## Why this matters for a small business specifically
-
-Card networks typically take 1.5-3.5% per transaction, plus a hardware rental fee, plus a payout delay of one to several days. None of that applies here:
-
-- **No hardware** — a phone or a printed handle on a sign is enough to receive payment.
-- **No delay** — money is usable the second it arrives, which matters when you're paying suppliers same-day.
-- **No card-present risk** — there's no card number to skim, clone, or charge back fraudulently, because there was never a card.
-
-## Handling a queue
-
-Retail moves fast — a printed QR code encoding your handle at the register, paired with the customer typing their code, is often quicker than a chip-and-PIN transaction. If you're building the point-of-sale software yourself, `POST /payments` is the only call in the hot path — everything else (history, receipts, reconciliation) can happen after the customer has already walked away with their coffee.
-
-## Reconciling at the end of the day
-
-```bash Pull today's transactions
-curl --request GET 'https://api.zelkea.com/payments' \
-  --header 'Authorization: Bearer <API key>'
-```
-
-Or don't poll at all — [register a webhook](/webhooks) and have every sale pushed to your till system the instant it happens, so your end-of-day total is always already correct.
+Because some financial institutions support USSD and phone banking, Zelkea transfers can also work without an internet connection. This makes it suitable for regions where connectivity may be limited.
