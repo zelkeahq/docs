@@ -6,43 +6,38 @@ In under five minutes, you'll register your institution, issue your first paymen
 
 ---
 
-## 1. Sign up your institution
+## 1. Register your institution
 
 Before using the API, your institution must be registered on Zelkea.
 
 - Go to [https://app.zelkea.com](https://app.zelkea.com) and create an institution account.
 - Complete onboarding and grab your first API key from your dashboard.
 
-Set your key as an environment variable to authenticate requests:
-
-```bash
-ZELKEA_API_KEY="your_api_key_here"
-```
+During onboarding, you'll choose a domain tied to your institution. We recommend using your company name. For example, if your company is Lion Bank, choose `@lionbank`. This keeps handles memorable, easy to type, and less prone to mistakes.
 
 ## 2. Register a handle
 
-Every customer on the network needs a unique payment handle (`user@domain`) to send and receive money. The domain is automatically appended based on your institution configuration.
+Every customer on the network needs a unique payment handle like `tom@lionbank` to send and receive money. The domain is automatically appended based on your institution configuration.
 
 <CodeGroup>
 
 ```bash cURL Request
 curl --location --request POST 'https://api.zelkea.com/handles' \
---header "Authorization: Bearer $ZELKEA_API_KEY" \
+--header 'Authorization: Bearer <API key>' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-  "handle": "alice",
+  "handle": "alice", 
   "balance": 1000,
   "limit": 5000,
   "currency": "USD",
   "code": "XSO2B9",
-  "status": "active",
   "status": "active"
 }'
 ```
 
 ```json Response
 {
-  "handle": "alice@acme",
+  "handle": "alice@lionbank",
   "balance": 1000,
   "limit": 5000,
   "currency": "USD",
@@ -56,17 +51,17 @@ curl --location --request POST 'https://api.zelkea.com/handles' \
 
 ## 3. Create a transfer
 
-This endpoint enables instant fund transfers from your customers to any enabled handle. You must include a unique UUID as an `idempotency-key` header to prevent double-processing.
+Use the Transfer API to initiate an instant fund transfer to any active handle in the network. Include a unique UUID in the `idempotency-key` header to prevent duplicate processing.
 
 <CodeGroup>
 
 ```bash cURL Request
 curl --location --request POST 'https://api.zelkea.com/transfers' \
---header 'Authorization: Bearer \$ZELKEA_API_KEY' \
+--header 'Authorization: Bearer <API key>' \
 --header 'idempotency-key: 7b9e4a3c-2d1e-4f5a-8b6c-9d8e7f6a5b4c' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-  "sender": "alice@acme",
+  "sender": "alice@lionbank",
   "receiver": "bob@scbank",
   "amount": 250,
   "currency": "USD"
@@ -76,7 +71,7 @@ curl --location --request POST 'https://api.zelkea.com/transfers' \
 ```json Response
 {
     "id": "tx_987654321",
-    "sender": "alice@acme",
+    "sender": "alice@lionbank",
     "receiver": "bob@scbank",
     "amount": 250,
     "currency": "USD",
@@ -95,7 +90,7 @@ Now you can register a webhook endpoint to receive real-time payment and transfe
 
 ```bash cURL Request
 curl --location --request POST 'https://api.zelkea.com/webhooks' \
---header 'Authorization: Bearer \$ZELKEA_API_KEY' \
+--header 'Authorization: Bearer <API key>' \
 --header 'Content-Type: application/json' \
 --data-raw '{
   "url": "https://domain.com/webhooks"
@@ -111,6 +106,6 @@ curl --location --request POST 'https://api.zelkea.com/webhooks' \
 
 </CodeGroup>
 
-That's it. Your institution can now issue handles, make transfers, and receive real-time transaction events.
+That's it. Your institution can now issue payment handles, make transfers, and receive real-time transaction events.
 
-Next, explore a complete integration for [Financial apps](/financial-apps), learn more about the protocol in the [Platform overview](/platform-overview), or browse the [API reference](/authentication).
+Next, explore a complete integration guide for [Financial apps](/financial-apps), learn more about the protocol in the [Platform overview](/platform-overview), or browse the [API reference](/authentication).

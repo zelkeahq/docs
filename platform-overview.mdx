@@ -2,9 +2,9 @@
 title: "Platform overview"
 ---
 
-Zelkea APIs are modular building blocks designed to create fast, flexible, and unified payment experiences. The platform allows money to move instantly across different regions and entities through a single interface.
+Zelkea is a financial interoperability network that enables institutions and businesses to move money using short and memorable identifier called handles.
 
-This guide outlines the core architectural components and transaction types available on the network.
+This guide introduces the core components of the network and how money moves through it.
 
 ---
 
@@ -14,25 +14,25 @@ The core infrastructure relies on two main types of entities interacting on the 
 
 ### Institutions
 
-An institution is any regulated entity moving money on behalf of its customers.
+An institution is a regulated entity moving money on behalf of its customers.
 
-- **What they do:** They register their own top-level domains (like `@scbank` or `@payme`), issue user handles, perform local compliance (KYC/AML), and maintain a settlement balance with Zelkea.
-- **When to use:** When you are a licensed financial entity wanting to grant your existing user base global financial interoperability.
+- **What they do:** They register a memorable domain (like `@scbank` or `@payme`), issue handles to their customers, perform local compliance (KYC/AML), and maintain a pre-funded balance with Zelkea.
+- **When to use:** When you are a licensed financial entity wanting to grant your existing user base financial interoperability.
 
 ### Businesses
 
 Payment processors, merchants, SaaS platforms, and marketplaces that want to collect funds from customers globally.
 
 - **What they do:** Integrate the Zelkea API into their checkout flows to receive payments instantly under a business handle marked with their country's domain (like `company@us` or `shop@jp`)
-- **When to use:** When you need a single integration to accept global, multi-currency payments without maintaining separate payment gateways or managing payouts.
+- **When to use:** When you need a single integration to accept global, multi-currency payments without maintaining separate local payment gateways.
 
 ---
 
 ## Handles
 
-The secure, human-readable identifiers (`customer@domain`) that replace sensitive banking information across the network.
+The secure, human-readable identifiers (`customer@domain`) that replace long and sensitive banking information across the network.
 
-- **What they do:** They act as a universal routing address. Zelkea maps the handle to the corresponding institution's balance to settle transactions without ever exposing bank account numbers, card details, or wallet identifiers.
+- **What they do:** They act as a universal routing address. Zelkea maps the handle to the corresponding institution's balance to settle transactions without ever exposing personal information, bank account numbers, card details, or wallet identifiers.
 - **When to use:** Used to make online payments and send or receive money without sharing sensitive financial details.
 
 ---
@@ -43,5 +43,5 @@ Zelkea instantly processes transactions globally by clearing funds directly betw
 
 | Product | Description | Use when you need to... |
 | :-- | :-- | :-- |
-| **Transfers** | Direct account-to-account transaction between a sender handle and a receiver handle. | Send or receive money between two specific accounts (e.g., P2P remittances or bank-to-bank transfers). |
-| **Payments** | Dynamic checkout flows including one-time charges, recurring subscriptions, or marketplace splits using single-use customer authorization codes. | Build merchant checkout experiences, automate subscription billing, or split a single customer payment among multiple parties simultaneously. |
+| **Transfers** | Direct account-to-account transaction between a sender handle and a receiver handle. | Send or receive money between two specific accounts (e.g., P2P remittances or bank-to-wallet transfers). |
+| **Payments** | Dynamic checkout flows including one-time charges, recurring subscriptions, or marketplace splits. | Build merchant checkout experiences, automate subscription billing, or split a single customer payment among multiple parties simultaneously. |
