@@ -3,11 +3,15 @@
   "info": {
     "title": "Zelkea API",
     "version": "1.1.0",
-    "description": "OpenAPI document aligned with the current Hono route handlers and DynamoDB-backed API behavior."
+    "description": "A universal financial addressing and payment routing protocol."
   },
   "servers": [
     {
       "url": "https://sandbox.zelkea.com",
+      "description": "Sandbox"
+    },
+    {
+      "url": "https://api.zelkea.com",
       "description": "Production"
     }
   ],
@@ -19,19 +23,19 @@
   "tags": [
     {
       "name": "Handles",
-      "description": "Create, update, and inspect payment handles"
+      "description": "Universal financial addresses issued by financial institutions"
     },
     {
       "name": "Transfers",
-      "description": "Execute and inspect transfers"
+      "description": "Move money between handles across the Zelkea network"
     },
     {
       "name": "Payments",
-      "description": "Execute and inspect payments"
+      "description": "Authorized money movement from customer handles to businesses"
     },
     {
       "name": "Webhooks",
-      "description": "Configure webhook endpoints"
+      "description": "Receive real-time notifications when money moves"
     }
   ],
   "paths": {
@@ -41,7 +45,8 @@
           "Handles"
         ],
         "operationId": "createHandle",
-        "summary": "Create a handle",
+        "summary": "Create a payment handle",
+        "description": "Registers a new payment handle issued under the institution's domain.",
         "requestBody": {
           "required": true,
           "content": {
@@ -54,7 +59,7 @@
         },
         "responses": {
           "201": {
-            "description": "Handle created",
+            "description": "Handle created successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -77,6 +82,9 @@
           },
           "409": {
             "$ref": "#/components/responses/Conflict"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
           }
         }
       },
@@ -85,10 +93,11 @@
           "Handles"
         ],
         "operationId": "listHandles",
-        "summary": "List handles for the calling institution",
+        "summary": "List all handles issued by the calling institution",
+        "description": "Returns all handles issued by the calling institution.",
         "responses": {
           "200": {
-            "description": "Handles listed",
+            "description": "Handles listed successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -102,6 +111,9 @@
           },
           "403": {
             "$ref": "#/components/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
           }
         }
       }
@@ -112,12 +124,14 @@
           "Handles"
         ],
         "operationId": "getHandle",
-        "summary": "Get a handle",
+        "summary": "Get a specific handle",
+        "description": "Retrieves a handle's details. The handle must be issued by the calling institution.",
         "parameters": [
           {
             "name": "handle",
             "in": "path",
             "required": true,
+            "description": "The full handle (e.g. `alice@acme`)",
             "schema": {
               "type": "string"
             }
@@ -142,6 +156,9 @@
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
           }
         }
       },
@@ -151,11 +168,13 @@
         ],
         "operationId": "updateHandle",
         "summary": "Update a handle",
+        "description": "Updates one or more fields on a handle. The handle must be issued by the calling institution.",
         "parameters": [
           {
             "name": "handle",
             "in": "path",
             "required": true,
+            "description": "The handle to update (e.g. `alice@acme`)",
             "schema": {
               "type": "string"
             }
@@ -173,7 +192,7 @@
         },
         "responses": {
           "200": {
-            "description": "Handle updated",
+            "description": "Handle updated successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -193,6 +212,9 @@
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
           }
         }
       }
@@ -204,6 +226,7 @@
         ],
         "operationId": "createTransfer",
         "summary": "Execute a transfer",
+        "description": "Executes a handle-to-handle transfer. The caller must be authorized to move funds from the sender handle.",
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"
@@ -221,7 +244,7 @@
         },
         "responses": {
           "201": {
-            "description": "Transfer executed",
+            "description": "Transfer executed successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -244,6 +267,9 @@
           },
           "422": {
             "$ref": "#/components/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
           }
         }
       }
@@ -254,28 +280,25 @@
           "Transfers"
         ],
         "operationId": "listTransfers",
-        "summary": "Get transaction history for a handle or business",
+        "summary": "Get transaction history for a given handle or business",
+        "description": "Returns paginated transfer history for the given identifier. The identifier must belong to the calling organization.",
         "parameters": [
           {
             "name": "identifier",
             "in": "path",
             "required": true,
+            "description": "The handle or business identifier (e.g. `alice@acme`)",
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "cursor",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/Cursor"
           }
         ],
         "responses": {
           "200": {
-            "description": "Transfer history fetched",
+            "description": "Transfer history retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -292,6 +315,9 @@
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
           }
         }
       }
@@ -303,11 +329,13 @@
         ],
         "operationId": "getTransfer",
         "summary": "Get a specific transfer",
+        "description": "Retrieves a single transfer record by transaction ID for the given identifier. The identifier must belong to the calling organization.",
         "parameters": [
           {
             "name": "identifier",
             "in": "path",
             "required": true,
+            "description": "The handle or business identifier (e.g. `alice@acme`)",
             "schema": {
               "type": "string"
             }
@@ -316,6 +344,7 @@
             "name": "txId",
             "in": "path",
             "required": true,
+            "description": "The transaction ID",
             "schema": {
               "type": "string"
             }
@@ -340,6 +369,9 @@
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
           }
         }
       }
@@ -351,6 +383,7 @@
         ],
         "operationId": "createPayment",
         "summary": "Execute a payment",
+        "description": "Executes an authorized payment from a customer handle to one or more receiving handles.",
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"
@@ -368,7 +401,7 @@
         },
         "responses": {
           "201": {
-            "description": "Payment executed",
+            "description": "Payment executed successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -391,6 +424,9 @@
           },
           "422": {
             "$ref": "#/components/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
           }
         }
       },
@@ -399,30 +435,19 @@
           "Payments"
         ],
         "operationId": "listPayments",
-        "summary": "List payments received by the merchant",
+        "summary": "Get all payments received by the calling merchant",
+        "description": "Returns paginated payment history received by the calling merchant business.",
         "parameters": [
           {
-            "name": "cursor",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/Cursor"
           },
           {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "maximum": 100,
-              "default": 50
-            }
+            "$ref": "#/components/parameters/Limit"
           }
         ],
         "responses": {
           "200": {
-            "description": "Payments listed",
+            "description": "Payments retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -436,6 +461,9 @@
           },
           "403": {
             "$ref": "#/components/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
           }
         }
       }
@@ -447,11 +475,13 @@
         ],
         "operationId": "getPayment",
         "summary": "Get a specific payment",
+        "description": "Retrieves a single payment record received by the calling merchant business.",
         "parameters": [
           {
             "name": "paymentId",
             "in": "path",
             "required": true,
+            "description": "The payment ID",
             "schema": {
               "type": "string"
             }
@@ -476,6 +506,9 @@
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
           }
         }
       }
@@ -486,7 +519,8 @@
           "Webhooks"
         ],
         "operationId": "createWebhook",
-        "summary": "Create or update a webhook configuration",
+        "summary": "Register a webhook endpoint",
+        "description": "Registers a URL to receive real-time event notifications for the calling institution or business. A signing secret is generated and returned once; it is not retrievable again after this call. Registering again replaces any existing configuration and issues a new secret.",
         "requestBody": {
           "required": true,
           "content": {
@@ -499,11 +533,11 @@
         },
         "responses": {
           "201": {
-            "description": "Webhook configured",
+            "description": "Webhook registered successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WebhookResponse"
+                  "$ref": "#/components/schemas/WebhookSecretData"
                 }
               }
             }
@@ -516,6 +550,9 @@
           },
           "403": {
             "$ref": "#/components/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
           }
         }
       },
@@ -524,14 +561,15 @@
           "Webhooks"
         ],
         "operationId": "getWebhook",
-        "summary": "Get the current webhook configuration",
+        "summary": "Get the registered webhook configuration",
+        "description": "Returns the currently registered webhook URL for the calling institution or business. The signing secret is masked; it is only shown in full at creation time.",
         "responses": {
           "200": {
-            "description": "Webhook configuration fetched",
+            "description": "Webhook configuration found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WebhookResponse"
+                  "$ref": "#/components/schemas/WebhookMaskedData"
                 }
               }
             }
@@ -544,6 +582,9 @@
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
           }
         }
       },
@@ -552,10 +593,11 @@
           "Webhooks"
         ],
         "operationId": "deleteWebhook",
-        "summary": "Delete the current webhook configuration",
+        "summary": "Remove the registered webhook",
+        "description": "Deletes the webhook configuration for the calling institution or business. Event delivery stops immediately.",
         "responses": {
           "200": {
-            "description": "Webhook deleted",
+            "description": "Webhook deleted successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -569,6 +611,9 @@
           },
           "403": {
             "$ref": "#/components/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
           }
         }
       }
@@ -579,7 +624,7 @@
       "BearerAuth": {
         "type": "http",
         "scheme": "bearer",
-        "description": "Bearer token with the required scopes"
+        "description": "API keys authenticate requests and control access through permission scopes."
       }
     },
     "parameters": {
@@ -587,9 +632,30 @@
         "name": "idempotency-key",
         "in": "header",
         "required": true,
-        "description": "Unique request key for idempotent processing",
+        "description": "A unique key to ensure idempotent request processing. Must be a UUID.",
         "schema": {
           "type": "string"
+        }
+      },
+      "Cursor": {
+        "name": "cursor",
+        "in": "query",
+        "required": false,
+        "description": "Opaque pagination cursor returned by a previous request",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "Limit": {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "description": "Maximum number of results to return (default 50, max 100)",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 50
         }
       }
     },
@@ -606,190 +672,6 @@
           }
         }
       },
-      "InstitutionRequest": {
-        "type": "object",
-        "required": [
-          "domain"
-        ],
-        "properties": {
-          "domain": {
-            "type": "string",
-            "pattern": "^[a-zA-Z0-9]+$"
-          },
-          "organization_id": {
-            "type": "string"
-          }
-        },
-        "additionalProperties": true
-      },
-      "InstitutionResponse": {
-        "type": "object",
-        "properties": {
-          "domain": {
-            "type": "string"
-          },
-          "bridge_id": {
-            "type": "string"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "additionalProperties": true
-      },
-      "Address": {
-        "type": "object",
-        "required": [
-          "street_line_1",
-          "city",
-          "country"
-        ],
-        "properties": {
-          "street_line_1": {
-            "type": "string"
-          },
-          "street_line_2": {
-            "type": "string"
-          },
-          "city": {
-            "type": "string"
-          },
-          "state": {
-            "type": "string"
-          },
-          "postal_code": {
-            "type": "string"
-          },
-          "country": {
-            "type": "string"
-          }
-        }
-      },
-      "BusinessRequest": {
-        "type": "object",
-        "required": [
-          "handle",
-          "registered_address"
-        ],
-        "properties": {
-          "handle": {
-            "type": "string"
-          },
-          "organization_id": {
-            "type": "string"
-          },
-          "registered_address": {
-            "$ref": "#/components/schemas/Address"
-          },
-          "business_legal_name": {
-            "type": "string"
-          },
-          "primary_website": {
-            "type": "string",
-            "format": "uri"
-          }
-        },
-        "additionalProperties": true
-      },
-      "BusinessResponse": {
-        "type": "object",
-        "properties": {
-          "country": {
-            "type": "string"
-          },
-          "bridge_id": {
-            "type": "string"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "registered_address": {
-            "$ref": "#/components/schemas/Address"
-          },
-          "business_legal_name": {
-            "type": "string"
-          },
-          "primary_website": {
-            "type": "string",
-            "format": "uri"
-          }
-        },
-        "additionalProperties": true
-      },
-      "KybLinkRequest": {
-        "type": "object",
-        "required": [
-          "email"
-        ],
-        "properties": {
-          "email": {
-            "type": "string",
-            "format": "email"
-          },
-          "redirect_uri": {
-            "type": "string",
-            "format": "uri"
-          }
-        }
-      },
-      "KybLinkResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "customer_id": {
-            "type": "string"
-          },
-          "kyc_link": {
-            "type": "string"
-          },
-          "tos_link": {
-            "type": "string"
-          },
-          "kyc_status": {
-            "type": "string"
-          },
-          "tos_status": {
-            "type": "string"
-          }
-        }
-      },
-      "WalletResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "balance": {
-            "type": "string"
-          },
-          "currency": {
-            "type": "string"
-          }
-        }
-      },
-      "AccountRequest": {
-        "type": "object",
-        "required": [
-          "source_currency"
-        ],
-        "properties": {
-          "source_currency": {
-            "type": "string",
-            "enum": [
-              "usd",
-              "eur"
-            ]
-          }
-        }
-      },
-      "VirtualAccountResponse": {
-        "type": "object",
-        "additionalProperties": true
-      },
       "CreateHandleRequest": {
         "type": "object",
         "required": [
@@ -802,37 +684,27 @@
         ],
         "properties": {
           "handle": {
-            "type": "string"
+            "type": "string",
+            "description": "The handle identifier (domain suffix is appended automatically)"
           },
           "balance": {
-            "oneOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "string"
-              }
-            ]
+            "type": "number",
+            "description": "Initial balance"
           },
           "currency": {
             "type": "string",
             "enum": [
-              "USD",
-              "EUR"
-            ]
+              "USD"
+            ],
+            "description": "Currency code"
           },
           "limit": {
-            "oneOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "string"
-              }
-            ]
+            "type": "number",
+            "description": "Per-transaction limit"
           },
           "code": {
-            "type": "string"
+            "type": "string",
+            "description": "Security authorization code for the handle"
           },
           "status": {
             "type": "string",
@@ -840,10 +712,12 @@
               "active",
               "restricted",
               "inactive"
-            ]
+            ],
+            "description": "Initial status of the handle"
           },
           "external_reference": {
-            "type": "string"
+            "type": "string",
+            "description": "Optional external reference ID"
           }
         }
       },
@@ -859,24 +733,10 @@
             ]
           },
           "balance": {
-            "oneOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "string"
-              }
-            ]
+            "type": "number"
           },
           "limit": {
-            "oneOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "string"
-              }
-            ]
+            "type": "number"
           },
           "code": {
             "type": "string"
@@ -884,21 +744,22 @@
           "currency": {
             "type": "string",
             "enum": [
-              "USD",
-              "EUR"
+              "USD"
             ]
           },
           "external_reference": {
             "type": "string"
           }
         },
-        "minProperties": 1
+        "minProperties": 1,
+        "description": "At least one field must be provided"
       },
       "HandleData": {
         "type": "object",
         "properties": {
           "handle": {
-            "type": "string"
+            "type": "string",
+            "description": "Full handle (e.g. `alice@acme`)"
           },
           "balance": {
             "type": "number"
@@ -953,30 +814,28 @@
         ],
         "properties": {
           "sender": {
-            "type": "string"
+            "type": "string",
+            "description": "Sender handle"
           },
           "receiver": {
-            "type": "string"
+            "type": "string",
+            "description": "Receiver handle"
           },
           "amount": {
-            "oneOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "string"
-              }
-            ]
+            "type": "number",
+            "description": "Amount to transfer"
           },
           "currency": {
             "type": "string",
             "enum": [
               "USD",
               "EUR"
-            ]
+            ],
+            "description": "Currency code"
           },
           "reference": {
-            "type": "string"
+            "type": "string",
+            "description": "Optional caller-supplied reference, returned unchanged on this transfer"
           }
         }
       },
@@ -984,7 +843,8 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "description": "Transaction ID"
           },
           "sender": {
             "type": "string"
@@ -1006,7 +866,8 @@
             "type": "string"
           },
           "type": {
-            "type": "string"
+            "type": "string",
+            "description": "OUTBOUND or INBOUND, relative to the identifier the record was fetched under"
           }
         }
       },
@@ -1037,33 +898,32 @@
         ],
         "properties": {
           "customer": {
-            "type": "string"
+            "type": "string",
+            "description": "Customer's fully qualified handle (e.g. `alice@acme`)"
           },
           "amount": {
-            "oneOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "string"
-              }
-            ]
+            "type": "number",
+            "description": "Total payment amount"
           },
           "currency": {
             "type": "string",
             "enum": [
               "USD",
               "EUR"
-            ]
+            ],
+            "description": "Payment currency"
           },
           "code": {
-            "type": "string"
+            "type": "string",
+            "description": "Customer's current security authorization code"
           },
           "reference": {
-            "type": "string"
+            "type": "string",
+            "description": "Optional caller-supplied reference, returned unchanged on this payment"
           },
           "splits": {
             "type": "array",
+            "description": "Optional payment splits. If provided, the sum of all split amounts must equal the total amount.",
             "items": {
               "$ref": "#/components/schemas/PaymentSplit"
             }
@@ -1078,17 +938,12 @@
         ],
         "properties": {
           "handle": {
-            "type": "string"
+            "type": "string",
+            "description": "Receiver's handle"
           },
           "amount": {
-            "oneOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "string"
-              }
-            ]
+            "type": "number",
+            "description": "Amount allocated"
           }
         }
       },
@@ -1153,189 +1008,6 @@
           }
         }
       },
-      "WithdrawalAccountRequest": {
-        "type": "object",
-        "required": [
-          "account_owner_name",
-          "account_type",
-          "currency",
-          "address"
-        ],
-        "properties": {
-          "account_owner_name": {
-            "type": "string"
-          },
-          "account_type": {
-            "type": "string"
-          },
-          "currency": {
-            "type": "string"
-          },
-          "address": {
-            "$ref": "#/components/schemas/Address"
-          },
-          "account": {
-            "type": "string"
-          },
-          "swift": {
-            "type": "string"
-          },
-          "iban": {
-            "type": "string"
-          },
-          "account_owner_type": {
-            "type": "string",
-            "enum": [
-              "individual",
-              "business"
-            ]
-          },
-          "first_name": {
-            "type": "string"
-          },
-          "last_name": {
-            "type": "string"
-          },
-          "business_name": {
-            "type": "string"
-          }
-        }
-      },
-      "WithdrawalAccountResponse": {
-        "type": "object",
-        "properties": {
-          "PK": {
-            "type": "string"
-          },
-          "SK": {
-            "type": "string"
-          },
-          "organization_id": {
-            "type": "string"
-          },
-          "bridge_external_account_id": {
-            "type": "string"
-          },
-          "bridge_customer_id": {
-            "type": "string"
-          },
-          "account_owner_name": {
-            "type": "string"
-          },
-          "account_type": {
-            "type": "string"
-          },
-          "currency": {
-            "type": "string"
-          },
-          "bank_name": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "last_4": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "active": {
-            "type": "boolean"
-          },
-          "account": {
-            "type": "string"
-          },
-          "swift": {
-            "type": "string"
-          },
-          "iban": {
-            "type": "string"
-          },
-          "account_owner_type": {
-            "type": "string"
-          },
-          "first_name": {
-            "type": "string"
-          },
-          "last_name": {
-            "type": "string"
-          },
-          "business_name": {
-            "type": "string"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "WithdrawalRequest": {
-        "type": "object",
-        "required": [
-          "amount"
-        ],
-        "properties": {
-          "amount": {
-            "oneOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "string"
-              }
-            ]
-          }
-        }
-      },
-      "WithdrawalResponse": {
-        "type": "object",
-        "properties": {
-          "PK": {
-            "type": "string"
-          },
-          "SK": {
-            "type": "string"
-          },
-          "organization_id": {
-            "type": "string"
-          },
-          "transfer_id": {
-            "type": "string"
-          },
-          "client_reference_id": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string"
-          },
-          "amount": {
-            "type": [
-              "number",
-              "string"
-            ]
-          },
-          "currency": {
-            "type": "string"
-          },
-          "payment_rail": {
-            "type": "string"
-          },
-          "external_account_id": {
-            "type": "string"
-          },
-          "receipt_url": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
       "WebhookRequest": {
         "type": "object",
         "required": [
@@ -1344,18 +1016,35 @@
         "properties": {
           "url": {
             "type": "string",
-            "format": "uri"
+            "format": "uri",
+            "description": "HTTPS endpoint that will receive event notifications"
           }
         }
       },
-      "WebhookResponse": {
+      "WebhookSecretData": {
+        "type": "object",
+        "description": "Returned only at registration time. The full secret is never shown again.",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "secret": {
+            "type": "string",
+            "description": "Signing secret used to verify the `Zelkea-Signature` header on delivered events. Store this securely — it is not retrievable again."
+          }
+        }
+      },
+      "WebhookMaskedData": {
         "type": "object",
         "properties": {
           "url": {
-            "type": "string"
+            "type": "string",
+            "format": "uri"
           },
           "secret": {
-            "type": "string"
+            "type": "string",
+            "description": "Masked signing secret, e.g. `whsec_ab12cd34...`"
           }
         }
       },
@@ -1366,33 +1055,11 @@
             "type": "boolean"
           }
         }
-      },
-      "SimulateDepositRequest": {
-        "type": "object",
-        "required": [
-          "amount",
-          "currency"
-        ],
-        "properties": {
-          "amount": {
-            "oneOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "string"
-              }
-            ]
-          },
-          "currency": {
-            "type": "string"
-          }
-        }
       }
     },
     "responses": {
       "BadRequest": {
-        "description": "Bad request",
+        "description": "Bad request — missing or invalid parameters",
         "content": {
           "application/json": {
             "schema": {
@@ -1402,7 +1069,7 @@
         }
       },
       "Unauthorized": {
-        "description": "Unauthorized",
+        "description": "Unauthorized — missing, invalid, or expired bearer token",
         "content": {
           "application/json": {
             "schema": {
@@ -1412,7 +1079,7 @@
         }
       },
       "Forbidden": {
-        "description": "Forbidden",
+        "description": "Forbidden — insufficient scope or organization mismatch",
         "content": {
           "application/json": {
             "schema": {
@@ -1422,7 +1089,7 @@
         }
       },
       "NotFound": {
-        "description": "Not found",
+        "description": "Resource not found",
         "content": {
           "application/json": {
             "schema": {
@@ -1432,7 +1099,7 @@
         }
       },
       "Conflict": {
-        "description": "Conflict",
+        "description": "Conflict — resource already exists",
         "content": {
           "application/json": {
             "schema": {
@@ -1442,7 +1109,7 @@
         }
       },
       "UnprocessableEntity": {
-        "description": "Unprocessable entity",
+        "description": "Unprocessable entity — required financial infrastructure is unavailable",
         "content": {
           "application/json": {
             "schema": {
@@ -1452,7 +1119,7 @@
         }
       },
       "InternalServerError": {
-        "description": "Internal server error",
+        "description": "Internal server error — safe to retry using the same idempotency key where applicable",
         "content": {
           "application/json": {
             "schema": {
