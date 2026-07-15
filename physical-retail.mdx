@@ -52,7 +52,7 @@ Retail moves fast — a printed QR code encoding your handle at the register, pa
 
 ```bash Pull today's transactions
 curl --request GET 'https://api.zelkea.com/payments' \
-  --header "Authorization: Bearer $ZELKEA_API_KEY"
+  --header 'Authorization: Bearer <API key>'
 ```
 
 Or don't poll at all — [register a webhook](/webhooks) and have every sale pushed to your till system the instant it happens, so your end-of-day total is always already correct.
