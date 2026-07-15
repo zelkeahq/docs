@@ -1,6 +1,6 @@
 ---
 title: "Financial apps"
-description: "Build a neobank, wallet, or remittance app without creating a separate integration for every country you launch in."
+description: "Build a neobank, wallet, or remittance app without maintaining separate integrations for every country you serve."
 ---
 
 If you're building a neobank, a payments app, or any product where users hold a balance and move money in and out of it, you're an institution, even if you're small, don't yet have a banking license, and operate under a partner bank's.
@@ -48,18 +48,18 @@ Sara does not need to know where Malick banks, his account number, or any person
 
 ## Keeping balances accurate in real time
 
-Since Zelkea doesn't hold a ledger for you, your app's job is to listen and react:
+Since Zelkea doesn't hold a ledger, we recommend setting up webhooks to listen for transaction events in real time.
 
-```bash Register a webhook once
+```bash Register a webhook endpoint
 curl --request POST 'https://api.zelkea.com/webhooks' \
-  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header 'Authorization: Bearer <API key>' \
   --header 'Content-Type: application/json' \
   --data-raw '{
     "url": "https://yourapp.com/webhooks/zelkea"
   }'
 ```
 
-Every `transfer.completed` or `payment.completed` event that touches one of your users' handles lands here the instant it happens — that's your signal to update the balance shown in your app.
+Every `transfer.completed` and `payment.completed` event involving one of your users' handles is delivered to your webhook endpoint as soon as it happens. Use these events to update the balance shown in your app.
 
 ## Common patterns
 
