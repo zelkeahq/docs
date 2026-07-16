@@ -3,32 +3,31 @@ title: "Transfers"
 description: "Move money directly from one handle to another."
 ---
 
-A transfer is the simplest thing you can do on Zelkea: take money from one handle, put it in another. No checkout, no customer authorization code, no splits — just a sender, a receiver, and an amount.
+A transfer is the core operation on Zelkea: funds move from one handle's institution balance to another, regardless of where either handle is issued.
 
 <Note>
-  Transfers are for **institutions** moving money on behalf of, or between, handles they're authorized to act for. If you're a business trying to get paid by a customer, you want [Payments](/payments) instead.
+  Transfers are used by institutions to move money on behalf of the handles they issued. If you're a business trying to get paid by a customer, you want [Payments](/payments) instead.
 </Note>
 
 ## When to use a transfer
 
-- A customer at your institution sending money to a friend at a different bank.
-- Settling a cross-border remittance corridor between two institutions.
-- Moving money between two handles under your own domain.
+A transfer works like a bank or mobile wallet transfer. Institutions use the Transfer API to move funds on behalf of their customers. Transfers are always instant, regardless of whether the handles belong to individuals or corporates, whether the parties are in the same country or different countries, or whether the currencies are the same or different.
 
-## Sending one
+## Making a transfer
 
-Every transfer needs a unique `idempotency-key` — a UUID you generate yourself. If your request times out and you retry with the same key, Zelkea returns the original result instead of moving the money twice.
+Every transfer needs a unique `idempotency-key `provided by you as a UUID. If a request times out and you retry it with the same key, Zelkea returns the original result instead of processing the transfer again.
 
 ```bash Send a transfer
 curl --request POST 'https://api.zelkea.com/transfers' \
-  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header 'Authorization: Bearer <API key>' \
   --header 'idempotency-key: 7b9e4a3c-2d1e-4f5a-8b6c-9d8e7f6a5b4c' \
   --header 'Content-Type: application/json' \
   --data-raw '{
     "sender": "alice@acme",
     "receiver": "bob@scbank",
     "amount": 250,
-    "currency": "USD"
+    "currency": "USD",
+    "reference": "invoice-4471"
   }'
 ```
 
@@ -45,26 +44,26 @@ curl --request POST 'https://api.zelkea.com/transfers' \
 }
 ```
 
-`reference` is optional and entirely yours — pass your own internal ID, invoice number, or ticket reference, and it comes back untouched on every read of this transfer. It's how you tie a Zelkea transaction back to your own records without maintaining a separate mapping table.
+`reference` is optional but recommended. You can pass your own internal ID, invoice number, or ticket reference, and Zelkea returns it unchanged whenever you retrieve the transfer. This lets you link Zelkea transactions back to your own records without maintaining a separate mapping table.
 
 <Warning>
-  Transfers settle instantly and are **final**. There's no reversal endpoint — Zelkea only routes money, it never holds a position to reverse from. If money needs to come back, that's a new transfer in the other direction, same as correcting a real bank wire.
+  Transfers settle instantly and are **final**. There is no reversal endpoint because Zelkea only routes money between institutions. If money needs to be returned, a new transfer must be initiated in the opposite direction, just like correcting a traditional bank transfer.
 </Warning>
 
-## Looking one up later
+## Looking a transfer up later
 
 Every transfer you send can be retrieved again, either as a list or by ID:
 
 ```bash Get transfer history for a handle
 curl --request GET 'https://api.zelkea.com/transfers/alice@acme' \
-  --header "Authorization: Bearer $ZELKEA_API_KEY"
+  --header 'Authorization: Bearer <API key>'
 ```
 
 ```bash Get one specific transfer
 curl --request GET 'https://api.zelkea.com/transfers/alice@acme/tx_987654321' \
-  --header "Authorization: Bearer $ZELKEA_API_KEY"
+  --header 'Authorization: Bearer <API key>'
 ```
 
 ## Finding out the instant it happens
 
-Don't poll for money movement — [register a webhook](/webhooks) once, and get a `transfer.completed` event pushed to both the sender's and receiver's institution the moment a transfer settles. This is what lets you keep your own ledger in sync without ever asking Zelkea "did anything change?"
+If your institutional balance is suffisant, outbound transfers are instant. For inbound transfers, we recommend you register [register a webhook endpoint](/webhooks) to receive real time transaction updates.

@@ -20,9 +20,11 @@ An institution is a regulated entity that already serves its own users, such as 
 
 Every handle you issue can send and receive money from **every other institution and business on the network**, instantly. One relationship with Zelkea replaces N one-off integrations with N different banks and wallets.
 
-## Create a handle
+## Get started in 2 steps
 
-```bash Register your first handle
+<CodeGroup>
+
+```shellscript Register a handle
 curl --request POST 'https://api.zelkea.com/handles' \
   --header 'Authorization: Bearer <API key>' \
   --header 'Content-Type: application/json' \
@@ -36,9 +38,9 @@ curl --request POST 'https://api.zelkea.com/handles' \
   }'
 ```
 
-```json Response
+```json Done!
 {
-  "handle": "malick@goodwallet",
+  "handle": "malick@lionbank",
   "balance": 1000,
   "currency": "USD",
   "limit": 5000,
@@ -47,7 +49,36 @@ curl --request POST 'https://api.zelkea.com/handles' \
 }
 ```
 
-From this point, `malick@goodwallet` can send and receive from any handle on the network, and you'll get a webhook every time money touches his handle so your own ledger stays in sync.
+</CodeGroup>
+
+<CodeGroup>
+
+```shellscript Create a transfer
+curl --location --request POST 'https://api.zelkea.com/transfers' \
+--header 'Authorization: Bearer <API key>' \
+--header 'idempotency-key: 7b9e4a3c-2d1e-4f5a-8b6c-9d8e7f6a5b4b' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "sender": "malick@lionbank",
+  "receiver": "bob@scbank",
+  "amount": 250,
+  "currency": "USD"
+}'
+```
+
+```json Done!
+{
+    "id": "tx_987654321",
+    "sender": "malick@lionbank",
+    "receiver": "bob@scbank",
+    "amount": 250,
+    "currency": "USD",
+    "status": "completed",
+    "created_at": "2026-07-10T00:22:00Z"
+  }
+```
+
+</CodeGroup>
 
 ## Keeping your ledger in sync
 

@@ -3,41 +3,41 @@ title: "Handles"
 description: "The address that replaces account numbers, card numbers, and wallet IDs."
 ---
 
-A handle looks like an email address — `alice@acme` — and works the same way: simple to remember, safe to share, and it doesn't matter what's actually underneath it.
+A handle looks like an email address, such as `alice@acme`, and works in a similar way: it is easy to remember, safe to share, and linked to a customer profile maintained by the issuing institution. Handles are used to send and receive money, as well as make online payments.
 
-That's the whole idea behind handles. Instead of asking someone for a 16-digit card number or a routing and account number, you just ask for their handle.
+Handles are not sensitive and can be shared publicly. The only information a handle reveals is the institution that issued it. On its own, a handle cannot be used to make unauthorized charges or withdraw funds.
 
 ## What's actually in a handle
 
 Two parts, split by `@`:
 
 - **The user part** (`alice`) — chosen by the person, unique within their institution.
-- **The domain part** (`acme`) — owned by the institution that issued it. Automatically appended, you never type it yourself when creating one.
+- **The domain part** (`acme`) — initially chosen by the institution that issued it.
 
-Nothing about the handle reveals a bank account number, a card number, or a wallet ID. Those stay inside the issuing institution, exactly where they are today — the handle is just a pointer to them.
+A handle does not reveal a bank account number, card number, or wallet ID. Those details remain securely within the issuing institution, exactly as they do today. The handle is simply a reference that points to the underlying account.
 
 ## Only institutions issue handles
 
-If you're a business collecting payments, you don't create handles — your customers already have one, issued by their own bank or wallet provider. You just need to ask for it at checkout.
+If you are a business collecting payments, you cannot issue handles. Your customers already have handles provided by their own bank or wallet provider. You simply collect their handle during checkout, or share your own handle when customers are paying directly from their banking app.
 
 If you're an institution, here's what a handle actually holds:
 
 | Field | What it's for |
 | :-- | :-- |
-| `handle` | The identifier itself, before the domain is appended |
-| `balance` | Used to check whether an outbound transfer is affordable |
+| `handle` | The identifier itself, with the domain appended |
+| `balance` | Used to check whether an outbound transaction is possible |
 | `limit` | The maximum a single transaction from this handle can move |
 | `code` | A one-time authorization code, rotated after every use |
 | `status` | `active`, `restricted`, or `inactive` — controls whether the handle can transact at all |
 
-## Creating one
+## Creating a handle
 
 ```bash Create a handle
 curl --request POST 'https://api.zelkea.com/handles' \
-  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header 'Authorization: Bearer <API key>' \
   --header 'Content-Type: application/json' \
   --data-raw '{
-    "handle": "alice",
+    "handle": "alice", // domain is appended automatically
     "balance": 1000,
     "currency": "USD",
     "limit": 5000,
@@ -57,13 +57,13 @@ curl --request POST 'https://api.zelkea.com/handles' \
 }
 ```
 
-## Updating one
+## Updating a handle
 
 Balances change, limits get adjusted, accounts get frozen. Update only what changed:
 
 ```bash Freeze a handle
 curl --request PATCH 'https://api.zelkea.com/handles/alice@acme' \
-  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header 'Authorization: Bearer <API key>' \
   --header 'Content-Type: application/json' \
   --data-raw '{
     "status": "restricted"
@@ -74,6 +74,6 @@ curl --request PATCH 'https://api.zelkea.com/handles/alice@acme' \
   A handle's `code` resets automatically every time it's used to authorize a payment. If you're building a customer-facing app, make sure your UI always shows the _current_ code, not a cached one — an expired code will get rejected.
 </Warning>
 
-## Why not just use one global identity instead?
+## Handles belong to the issuing institution
 
-Because a handle deliberately belongs to the institution that issues it, not to Zelkea. That's what lets your compliance, your KYC, your risk decisions travel with the handle wherever it's used on the network — Zelkea never becomes a second identity system you have to keep in sync with your real one.
+Handles are unique to the institution that issues them. The same person or business can have multiple handles if they use multiple banks or wallets connected to Zelkea. For example, Tom can have both `tom@goodwallet` and `tommy@lionbank`, each representing a different account relationship with a different institution.
