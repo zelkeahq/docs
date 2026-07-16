@@ -1,27 +1,27 @@
 ---
 title: "Payments"
-description: "Collect money from a customer, authorized with a one-time code."
+description: "Collect money from a handle, authorized with a one-time code."
 ---
 
-A payment is how a business gets paid by a customer. It looks a lot like a transfer, but with one important difference: it requires the customer's explicit, single-use authorization — the same trust boundary a card CVV or a 3D Secure prompt provides, without needing either one.
+A payment is how a business collects money from a customer. It looks similar to a transfer, but with one key difference: it requires the customer's explicit, single-use authorization. This provides the same trust boundary as a card CVV or 3D Secure confirmation, without requiring either.
 
 <Note>
-  Payments are for **businesses** collecting money. If you're an institution moving money between two handles directly, you want [Transfers](/transfers) instead.
+  Payments are for **businesses** collecting money online. If you're an institution moving money between two handles directly, you want [Transfers](/transfers) instead.
 </Note>
 
 ## The authorization code
 
-Every handle carries a `code` — a short, rotating value the customer's institution generates on demand, shown inside their banking or wallet app. The customer reads it out (or it autofills) at checkout, the business submits it with the payment request, and it's burned the instant it's used.
+Every handle has an associated code, a short-lived rotating value retrieved on demand by the customer's institution and displayed inside their banking or wallet app. During online checkout, the customer enters the code along with their handle. The business includes it in the payment request, and the code is invalidated immediately after use.
 
 <Tip>
-  Think of it like a card's CVV, except it changes every time and can never be reused — even if a code leaks, it's already worthless by the time anyone could act on it.
+  Think of it like a card's CVV, except it rotates automatically and can only be used once. Even if a code is exposed, it has no value after use and cannot be reused for another payment.
 </Tip>
 
 ## Charging a customer
 
 ```bash Execute a payment
 curl --request POST 'https://api.zelkea.com/payments' \
-  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header 'Authorization: Bearer <API key>' \
   --header 'idempotency-key: 4f5a8b6c-9d8e-7f6a-5b4c-7b9e4a3c2d1e' \
   --header 'Content-Type: application/json' \
   --data-raw '{
@@ -36,7 +36,7 @@ curl --request POST 'https://api.zelkea.com/payments' \
 {
   "id": "pmt_a1b2c3d4",
   "merchant": "company@us",
-  "customer": "wallet@mpesa",
+  "customer": "malick@wallet",
   "amount": 14.99,
   "currency": "USD",
   "status": "completed",
@@ -44,11 +44,11 @@ curl --request POST 'https://api.zelkea.com/payments' \
 }
 ```
 
-If the code is wrong, already used, or expired, the request is rejected before any money moves.
+If the code is wrong, already used, or expired, the request is automatically rejected.
 
 ## Splitting a payment
 
-A single customer payment can be divided across multiple recipients in one call — useful for marketplaces, platforms with revenue share, or any checkout that isn't going to just one place:
+A single customer payment can be split across multiple recipients in a single request, making it ideal for marketplaces, revenue-sharing platforms, and any checkout flow where funds need to be distributed between multiple parties.
 
 ```json Marketplace split
 {
@@ -57,30 +57,24 @@ A single customer payment can be divided across multiple recipients in one call 
   "currency": "USD",
   "code": "7X9K2M",
   "splits": [
-    { "handle": "vendor1@us", "amount": 70 },
-    { "handle": "vendor2@ca", "amount": 30 }
+    { "handle": "vendor1@za", "amount": 70 },
+    { "handle": "platform@dz", "amount": 30 }
   ]
 }
 ```
 
-The split amounts must add up to the total, or the request is rejected. Each recipient is paid directly and instantly — nobody in the split has to wait on anybody else to pay them out.
+The split amounts must add up to the total payment amount, otherwise the request is rejected. Each recipient receives their share directly and instantly, with no one needing to wait for another party to process a payout.
 
 ## Checking what you've been paid
 
+Successful payments settle instantly. Funds are available immediately, so you do not need to rely on webhooks to know when a payment completes. If you prefer event-driven updates, you can optionally [register a webhook endpoint](/webhooks) to receive payment events in real time.
+
 ```bash List payments received
 curl --request GET 'https://api.zelkea.com/payments' \
-  --header "Authorization: Bearer $ZELKEA_API_KEY"
+  --header 'Authorization: Bearer <API key>'
 ```
 
 ```bash Get one specific payment
 curl --request GET 'https://api.zelkea.com/payments/pmt_a1b2c3d4' \
-  --header "Authorization: Bearer $ZELKEA_API_KEY"
+  --header 'Authorization: Bearer <API key>'
 ```
-
-Or skip the polling entirely — [register a webhook](/webhooks) and get a `payment.completed` event the moment any payment involving your business lands, whether you were the direct merchant or one leg of someone else's split.
-
-## Common use cases
-
-- **Subscription billing** — charge a returning customer's handle each cycle with a freshly generated code.
-- **Marketplace checkout** — one customer payment, split instantly across every vendor in the cart.
-- **In-person retail** — a customer reads a code off their banking app instead of tapping a card.
