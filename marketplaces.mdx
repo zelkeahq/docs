@@ -1,9 +1,9 @@
 ---
 title: "Marketplaces"
-description: "Split a single checkout across every vendor instantly, without holding funds in the middle."
+description: "Split a single checkout across multiple parties instantly, without holding funds or managing payouts."
 ---
 
-A marketplace's hardest payments problem usually isn't collecting money — it's the part after that. One customer, one checkout, but the money needs to end up split across several vendors, minus your commission, without you sitting in the middle holding funds you're not supposed to have.
+A marketplace's hardest payments problem usually isn't collecting money. It's what happens after checkout. A single customer payment often needs to be split between multiple parties, with sellers or creators receiving their share, your commission being deducted, and funds held temporarily while payouts are processed.
 
 Zelkea's [split payments](/payments#splitting-a-payment) handle this in a single call.
 
@@ -13,17 +13,16 @@ A customer buys from two different sellers in one order, and your platform takes
 
 ```bash Split a single payment three ways
 curl --request POST 'https://api.zelkea.com/payments' \
-  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header 'Authorization: Bearer <API key>' \
   --header 'idempotency-key: 5a8b6c9d-8e7f-6a5b-4c7b-9e4a3c2d1e4f' \
   --header 'Content-Type: application/json' \
   --data-raw '{
-    "customer": "malick@mpesa",
+    "customer": "malick@mywallet",
     "amount": 100,
     "currency": "USD",
     "code": "3M9K7L",
     "splits": [
-      { "handle": "vendor1@us", "amount": 55 },
-      { "handle": "vendor2@us", "amount": 35 },
+      { "handle": "shop@ca", "amount": 90 },
       { "handle": "marketplace@us", "amount": 10 }
     ]
   }'
@@ -32,32 +31,23 @@ curl --request POST 'https://api.zelkea.com/payments' \
 ```json Response
 {
   "id": "pmt_m4n7p2",
-  "customer": "malick@mpesa",
+  "customer": "malick@mywallet",
   "amount": 100,
   "currency": "USD",
   "status": "completed",
-  "allocations": [
-    { "handle": "vendor1@us", "amount": 55, "transfer_id": "tx_a1" },
-    { "handle": "vendor2@us", "amount": 35, "transfer_id": "tx_a2" },
-    { "handle": "marketplace@us", "amount": 10, "transfer_id": "tx_a3" }
+  "splits": [
+    { "handle": "vendor1@us", "amount": 90, "transfer_id": "tx_a1" },
+    { "handle": "marketplace@us", "amount": 10, "transfer_id": "tx_a2" }
   ],
   "created_at": "2026-07-10T09:40:11Z"
 }
 ```
 
-Each `transfer_id` in `allocations` is independently traceable — if vendor1 asks "did I get paid for order #4471," you can point to the exact leg of the transaction that answers it, not just the total.
+Each `transfer_id` in `splits` is independently traceable — if the vendor asks "did I get paid for order #4471," you can point to the exact leg of the transaction that answers it, not just the total.
 
 ## Why this beats the traditional model
 
-The traditional pattern — collect the full amount into a platform-owned account, then run a separate payout batch to each vendor later — creates two problems Zelkea removes:
+The traditional approach is to collect full payments into a platform-controlled account, then send separate payouts to each vendor later. This creates unnecessary complexity and delays that Zelkea removes:
 
-- **You never legally hold vendor funds in transit.** The split happens inside the settlement itself; money goes directly from the customer's institution to each vendor's institution.
-- **Vendors don't wait on your payout schedule.** They're paid the moment the customer pays, not on whatever weekly or monthly cadence your payout batch runs on.
-
-## Handling a vendor that isn't on the network yet
-
-A split target can be a business handle or a personal handle interchangeably — useful for marketplaces where sellers range from registered companies to individual sellers who've just signed up with an institution and haven't formalized a business handle yet. Either works the same way in a `splits` array.
-
-## Keeping vendors informed without building a dashboard
-
-[Register a webhook](/webhooks) once, and every vendor's institution gets a `payment.completed` event the instant their share lands — including the full `splits` breakdown, so they can see the whole order, not just their slice.
+- **No need to hold vendor funds in transit** — The split happens at checkout, with funds moving directly from the customer's institution to each involved party's institution.
+- **No payout schedules for vendors** — Vendors receive their share as soon as the customer pays, rather than waiting for weekly or monthly payout batches.
