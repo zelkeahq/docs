@@ -95,6 +95,14 @@
         "operationId": "listHandles",
         "summary": "List all handles issued by the calling institution",
         "description": "Returns all handles issued by the calling institution.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Handles listed successfully",
@@ -493,7 +501,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaymentResult"
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/PaymentResult"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
                 }
               }
             }
@@ -634,7 +650,8 @@
         "required": true,
         "description": "A unique key to ensure idempotent request processing. Must be a UUID.",
         "schema": {
-          "type": "string"
+          "type": "string",
+          "format": "uuid"
         }
       },
       "Cursor": {
@@ -670,7 +687,10 @@
           "requestId": {
             "type": "string"
           }
-        }
+        },
+        "required": [
+          "error"
+        ]
       },
       "CreateHandleRequest": {
         "type": "object",
@@ -689,6 +709,7 @@
           },
           "balance": {
             "type": "number",
+            "minimum": 0,
             "description": "Initial balance"
           },
           "currency": {
@@ -700,6 +721,7 @@
           },
           "limit": {
             "type": "number",
+            "minimum": 0,
             "description": "Per-transaction limit"
           },
           "code": {
@@ -733,10 +755,12 @@
             ]
           },
           "balance": {
-            "type": "number"
+            "type": "number",
+            "minimum": 0
           },
           "limit": {
-            "type": "number"
+            "type": "number",
+            "minimum": 0
           },
           "code": {
             "type": "string"
@@ -762,13 +786,18 @@
             "description": "Full handle (e.g. `alice@acme`)"
           },
           "balance": {
-            "type": "number"
+            "type": "number",
+            "minimum": 0
           },
           "currency": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "USD"
+            ]
           },
           "limit": {
-            "type": "number"
+            "type": "number",
+            "minimum": 0
           },
           "status": {
             "type": "string",
@@ -779,30 +808,54 @@
             ]
           },
           "code": {
-            "type": "string"
+            "type": "string",
+            "description": "Online payment authorization code for the handle"
           },
           "external_reference": {
-            "type": "string"
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "created_at": {
             "type": "string",
             "format": "date-time"
           }
-        }
+        },
+        "required": [
+          "handle",
+          "balance",
+          "currency",
+          "limit",
+          "status",
+          "created_at"
+        ]
       },
       "HandleListResponse": {
         "type": "object",
         "properties": {
           "count": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0
           },
           "data": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/HandleData"
             }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
-        }
+        },
+        "required": [
+          "count",
+          "data",
+          "next_cursor"
+        ]
       },
       "CreateTransferRequest": {
         "type": "object",
@@ -823,6 +876,7 @@
           },
           "amount": {
             "type": "number",
+            "exclusiveMinimum": 0,
             "description": "Amount to transfer"
           },
           "currency": {
@@ -853,23 +907,44 @@
             "type": "string"
           },
           "amount": {
-            "type": "number"
+            "type": "number",
+            "exclusiveMinimum": 0
           },
           "currency": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "USD",
+              "EUR"
+            ]
           },
           "created_at": {
             "type": "string",
             "format": "date-time"
           },
           "reference": {
-            "type": "string"
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "type": {
             "type": "string",
+            "enum": [
+              "OUTBOUND",
+              "INBOUND"
+            ],
             "description": "OUTBOUND or INBOUND, relative to the identifier the record was fetched under"
           }
-        }
+        },
+        "required": [
+          "id",
+          "sender",
+          "receiver",
+          "amount",
+          "currency",
+          "created_at",
+          "type"
+        ]
       },
       "TransferListResponse": {
         "type": "object",
@@ -886,7 +961,11 @@
               "null"
             ]
           }
-        }
+        },
+        "required": [
+          "data",
+          "next_cursor"
+        ]
       },
       "CreatePaymentRequest": {
         "type": "object",
@@ -903,6 +982,7 @@
           },
           "amount": {
             "type": "number",
+            "exclusiveMinimum": 0,
             "description": "Total payment amount"
           },
           "currency": {
@@ -943,6 +1023,7 @@
           },
           "amount": {
             "type": "number",
+            "exclusiveMinimum": 0,
             "description": "Amount allocated"
           }
         }
@@ -960,13 +1041,21 @@
             "type": "string"
           },
           "amount": {
-            "type": "number"
+            "type": "number",
+            "exclusiveMinimum": 0
           },
           "currency": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "USD",
+              "EUR"
+            ]
           },
           "reference": {
-            "type": "string"
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "created_at": {
             "type": "string",
@@ -981,15 +1070,29 @@
                   "type": "string"
                 },
                 "amount": {
-                  "type": "number"
+                  "type": "number",
+                  "exclusiveMinimum": 0
                 },
                 "transfer_id": {
                   "type": "string"
                 }
-              }
+              },
+              "required": [
+                "handle",
+                "amount"
+              ]
             }
           }
-        }
+        },
+        "required": [
+          "id",
+          "merchant",
+          "customer",
+          "amount",
+          "currency",
+          "created_at",
+          "splits"
+        ]
       },
       "PaymentListResponse": {
         "type": "object",
@@ -1006,7 +1109,11 @@
               "null"
             ]
           }
-        }
+        },
+        "required": [
+          "data",
+          "next_cursor"
+        ]
       },
       "WebhookRequest": {
         "type": "object",
@@ -1033,7 +1140,11 @@
             "type": "string",
             "description": "Signing secret used to verify the `Zelkea-Signature` header on delivered events. Store this securely — it is not retrievable again."
           }
-        }
+        },
+        "required": [
+          "url",
+          "secret"
+        ]
       },
       "WebhookMaskedData": {
         "type": "object",
@@ -1046,7 +1157,11 @@
             "type": "string",
             "description": "Masked signing secret, e.g. `whsec_ab12cd34...`"
           }
-        }
+        },
+        "required": [
+          "url",
+          "secret"
+        ]
       },
       "WebhookDeleteResponse": {
         "type": "object",
@@ -1054,7 +1169,10 @@
           "deleted": {
             "type": "boolean"
           }
-        }
+        },
+        "required": [
+          "deleted"
+        ]
       }
     },
     "responses": {
