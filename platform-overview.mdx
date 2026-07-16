@@ -6,8 +6,6 @@ Zelkea is a financial interoperability network that enables institutions and bus
 
 This guide introduces the core components of the network and how money moves through it.
 
----
-
 ## Network participants
 
 The core infrastructure relies on two main types of entities interacting on the network.
@@ -26,16 +24,12 @@ Payment processors, merchants, SaaS platforms, and marketplaces that want to col
 - **What they do:** Integrate the Zelkea API into their checkout flows to receive payments instantly under a business handle marked with their country's domain (like `company@us` or `shop@jp`)
 - **When to use:** When you need a single integration to accept global, multi-currency payments without maintaining separate local payment gateways.
 
----
-
 ## Handles
 
 The secure, human-readable identifiers (`customer@domain`) that replace long and sensitive banking information across the network.
 
 - **What they do:** They act as a universal routing address. Zelkea maps the handle to the corresponding institution's balance to settle transactions without ever exposing personal information, bank account numbers, card details, or wallet identifiers.
 - **When to use:** Used to make online payments and send or receive money without sharing sensitive financial details.
-
----
 
 ## Transaction types
 
