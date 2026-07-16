@@ -3,7 +3,7 @@ title: "Webhooks"
 description: "Get notified the instant money moves, instead of polling for it."
 ---
 
-Every transfer and payment on Zelkea settles instantly — but your own system still needs to find out it happened. Webhooks are how. Register a URL once, and Zelkea pushes an event to it the moment money touches one of your handles.
+You can use webhooks to receive real-time notifications about money movements. Register an endpoint once, and Zelkea sends an event whenever a transaction affects one of your handles.
 
 <Note>
   This page covers the concept. For the raw request/response shapes, see [Register a webhook endpoint](/api-reference/webhooks/register-a-webhook-endpoint), [Get the registered webhook configuration](/api-reference/webhooks/get-the-registered-webhook-configuration), and [Remove the registered webhook](/api-reference/webhooks/remove-the-registered-webhook).
@@ -13,16 +13,16 @@ Every transfer and payment on Zelkea settles instantly — but your own system s
 
 ```bash Register a webhook
 curl --request POST 'https://api.zelkea.com/webhooks' \
-  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header 'Authorization: Bearer <API key>' \
   --header 'Content-Type: application/json' \
   --data-raw '{
-    "url": "https://yourapp.com/webhooks/zelkea"
+    "url": "https://yourapp.com/webhooks"
   }'
 ```
 
 ```json Response
 {
-  "url": "https://yourapp.com/webhooks/zelkea",
+  "url": "https://yourapp.com/webhooks",
   "secret": "whsec_4f2a1c9e8b7d6f5a3c2e1d9b8f7a6c5e"
 }
 ```
@@ -31,7 +31,7 @@ curl --request POST 'https://api.zelkea.com/webhooks' \
   The `secret` is shown **once**, at creation. Store it immediately — there's no way to retrieve it again later. If you lose it, register again to get a new one; this replaces your existing configuration.
 </Warning>
 
-One institution or business has one webhook URL. Registering again overwrites the previous one and issues a new secret — the old secret stops working immediately.
+Each institution or business has a single webhook URL. Registering a new endpoint replaces the existing one and generates a new signing secret. The previous secret is invalidated immediately and can no longer be used.
 
 ## What you receive
 
@@ -48,13 +48,13 @@ Every delivery has the same envelope, regardless of event type:
 
 | Event | Fires when |
 | :-- | :-- |
-| `transfer.completed` | A transfer involving one of your handles settles — you'll receive one event as the sender's institution, one as the receiver's. |
-| `payment.completed` | A payment involving your business settles — as the merchant, or as any recipient in a split. |
+| `transfer.completed` | A transfer involving one of your handles settles |
+| `payment.completed` | A payment involving your business settles |
 
 ```json transfer.completed payload
 {
   "id": "tx_987654321",
-  "sender": "alice@acme",
+  "sender": "alice@lionbank",
   "receiver": "bob@scbank",
   "amount": 250,
   "currency": "USD",
@@ -67,14 +67,11 @@ Every delivery has the same envelope, regardless of event type:
 {
   "id": "pmt_a1b2c3d4",
   "direction": "inbound",
-  "handle": "netflix@us",
-  "customer": "malick@mpesa",
+  "handle": "shop@nz",
+  "customer": "malick@wallet",
   "amount": 14.99,
-  "currency": "USD",
+  "currency": "NZD",
   "created_at": "2026-07-10T09:15:00.000Z",
-  "splits": [
-    { "handle": "netflix@us", "amount": 14.99 }
-  ]
 }
 ```
 
@@ -82,7 +79,7 @@ Every delivery has the same envelope, regardless of event type:
 
 ## Verifying a delivery is really from Zelkea
 
-Every request carries a `Zelkea-Signature` header. Verify it before trusting the body — anyone can POST JSON to a public URL, this is what proves it came from us.
+Every request includes a `Zelkea-Signature` header. Verify this signature before trusting the payload. A public webhook endpoint can receive requests from anyone, and the signature confirms that the event was sent by Zelkea.
 
 ```text
 Zelkea-Signature: t=1752134100,v1=5257a869e7ecebeda32affa62cdca3fa51cad7e77a0e56ff536d0ce8e108d8bd
@@ -117,7 +114,7 @@ function verifyZelkeaWebhook(rawBody, signatureHeader, secret) {
 
 ## Retries and failure
 
-If your endpoint doesn't respond with a 2xx status, or doesn't respond within 10 seconds, Zelkea retries with backoff — up to 5 attempts total. After that, the event stops being retried automatically.
+If your endpoint does not return a 2xx status code or fails to respond within 10 seconds, Zelkea retries delivery with exponential backoff, up to 5 total attempts. After the final attempt, the event is no longer retried automatically.
 
 Two things worth building for on your end:
 
