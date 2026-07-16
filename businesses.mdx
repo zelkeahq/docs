@@ -2,25 +2,21 @@
 title: "Businesses"
 ---
 
-A business is any company that gets paid — a merchant, a SaaS platform, a marketplace — but doesn't hold customer deposits itself. If you're building a checkout, not a bank account, this is you.
-
-<Note>
-  Businesses use the [Payments API](/payments) to collect money. They can't move money directly between two other handles — that's reserved for [Institutions](/institutions), since it requires holding the compliance relationship with the sender.
-</Note>
+A business is any company that receives payments, such as a merchant, SaaS platform, or marketplace. If you are building a checkout experience or payment flow rather than a financial product, this is the right model for you.
 
 ## What a business actually does
 
-- **Gets a handle under its country's domain.** For example `company@us` or `shop@jp`. This is what customers pay to — no merchant account, no gateway credentials, no PCI scope.
-- **Collects payments with a customer's handle and a one-time code.** The customer generates the code on their institution's app; you never see or store anything more sensitive than that.
-- **Gets paid instantly, in the currency you registered in.** No 2-3 day settlement delay, no payout batching.
+- **Gets a handle under its country's domain.** For example, `company@us` or `shop@jp`. It works like a standard financial handle issued by an institution. Customers send payments directly to this handle, without merchant accounts, gateway credentials, or PCI scope.
+- **Accepts online payments.** The customer generates a one-time payment code from their institution's app and uses it at checkout. The code expires after the payment attempt.
+- **Receives funds instantly.** No settlement delays, no payout batching, and no waiting days for funds to become available.
 
 ## Collecting a payment
 
-Say a customer wants to pay `company@us` \$14.99 using their `malick@wallet` handle. Malick opens his wallet app, generates a one-time code, and gives it to you at checkout — the same motion as typing a card CVV, just without the card. 
+Say a customer wants to pay `company@us` \$14.99 using their `malick@wallet` handle. Malick opens his wallet app, copy his one-time payment code, and gives it to you at checkout — the same motion as typing a card CVV, just without the card.
 
 ```bash Charge a customer
 curl --request POST 'https://api.zelkea.com/payments' \
-  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header 'Authorization: Bearer <API key>' \
   --header 'idempotency-key: 7b9e4a3c-2d1e-4f5a-8b6c-9d8e7f6a5b4c' \
   --header 'Content-Type: application/json' \
   --data-raw '{
@@ -43,7 +39,7 @@ curl --request POST 'https://api.zelkea.com/payments' \
 }
 ```
 
-The code is single-use — it's rotated automatically the moment it's spent, so it can't be replayed even if it leaks.
+The code is single-use and automatically rotated after each payment attempt, preventing it from being reused even if exposed. After it is used, the code has no remaining value and can be safely stored if needed.
 
 ## Splitting a payment across multiple recipients
 
@@ -56,13 +52,13 @@ If you're a marketplace, you don't have to collect the full amount yourself and 
   "currency": "USD",
   "code": "7X9K2M",
   "splits": [
-    { "handle": "vendor1@fr", "amount": 70 },
-    { "handle": "vendor2@us", "amount": 30 }
+    { "handle": "vendor1@au", "amount": 70 },
+    { "handle": "company@us", "amount": 30 }
   ]
 }
 ```
 
-Both vendors receive their share instantly and directly — you never hold the full \$100 and push it back out yourself.
+Both you and the seller or creator receive your share instantly. You never hold the full \$100, and there is no need to manage separate payouts.
 
 ## Getting paid means knowing you got paid
 
@@ -70,7 +66,7 @@ Poll for it, or get told the instant it happens:
 
 ```bash List payments received
 curl --request GET 'https://api.zelkea.com/payments' \
-  --header "Authorization: Bearer $ZELKEA_API_KEY"
+  --header 'Authorization: Bearer <API key>'
 ```
 
 Or better — [register a webhook](/webhooks) once, and get a `payment.completed` event pushed to you the moment any payment lands, whether it came through your checkout flow or as one leg of someone else's split.
@@ -79,4 +75,4 @@ Or better — [register a webhook](/webhooks) once, and get a `payment.completed
 
 - A subscription SaaS billing customers directly from their bank or mobile wallet balance, no card required.
 - A marketplace splitting a single checkout across several sellers in one transaction.
-- A physical retailer accepting payment with nothing but a handle and a code — no POS terminal, no card reader.
+- An online retailer accepting payment with nothing but a handle and a code.
