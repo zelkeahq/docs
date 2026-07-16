@@ -1,50 +1,50 @@
 ---
 title: "Global payments"
-description: "Send money across participating institutions without building separate country-by-country payment integrations."
+description: "In Zelkea, cross-border payments don't exist as a separate concept. They are simply transfers between participating institutions, moving funds from one handle to another."
 ---
 
-Cross-border payments have traditionally meant one of two things: a correspondent banking relationship (slow, expensive, requires pre-funded accounts in every corridor), or a patchwork of local integrations, one per country you actually need to reach. Zelkea replaces both with the same call you'd use to send money domestically.
+Cross-border payments have traditionally meant one of two things: correspondent banking relationships, which are slow, expensive, and require pre-funded accounts across corridors, or a patchwork of local integrations, one for every country you need to reach. With Zelkea, you don't need to know whether a payment crosses borders or stays within one market. You simply make a transfer from one handle to another.
 
-## A transfer doesn't care which country it's going to
+## It's just a normal transfer
 
-There's no separate "international transfer" endpoint. `sender` and `receiver` are just handles — if the institutions behind them happen to be in different countries, nothing about the request changes:
+Within Zelkea, a transfer is simply the movement of money from the sender institution's balance to the receiver institution's balance. The Transfer API does not distinguish between local and international transfers, because it does not need to. A transfer is just a movement of money, regardless of where it goes, always instant and at near-zero cost.
 
-```bash Send from Dakar to Tokyo
+Let's take Tom as an example. Tom is travelling from Belgium to Japan and has just finished a meal at a local sushi restaurant. Tom has a EUR bank account in Belgium, while the restaurant has a JPY bank account with a local Japanese bank.
+
+When it is time to pay, Tom simply opens his banking app, enters the restaurant's handle, the amount, and the currency. That's it.
+
+```bash Make the transfer
 curl --request POST 'https://api.zelkea.com/transfers' \
-  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header 'Authorization: Bearer <API key>' \
   --header 'idempotency-key: 1e4f5a8b-6c9d-8e7f-6a5b-4c7b9e4a3c2d' \
   --header 'Content-Type: application/json' \
   --data-raw '{
     "sender": "tom@bank",
-    "receiver": "restaurant1@jp",
-    "amount": 40,
-    "currency": "USD"
+    "receiver": "sushihouse@jpybank",
+    "amount": 850,
+    "currency": "JPY"
   }'
 ```
+
+Tom was debited instantly, and the restaurant received the funds directly into its bank account at the same time. The transaction cost Tom's bank \$0.10 and was free for both Tom and the merchant. It would have worked exactly the same way if the merchant had been a coffee shop in Belgium or a shopping mall in Melbourne.
 
 ```json Response
 {
   "id": "tx_f9k2m7",
   "sender": "tom@bank",
-  "receiver": "restaurant1@jp",
-  "amount": 40,
-  "currency": "USD",
+  "receiver": "sushihouse@jpybank",
+  "amount": 850,
+  "currency": "JPY",
   "status": "completed",
   "created_at": "2026-07-10T14:02:33Z",
-  "reference": "dinner-tokyo-trip"
+  "reference": "Payment Kaiten-sushi"
 }
 ```
-
-Tom never opened a Japanese bank account, and the restaurant never needed to know what Ecobank is. The handle is the only thing that had to be correct.
-
-## Why this doesn't need a correspondent bank
-
-Traditional cross-border transfers rely on a chain of correspondent banks, each taking a cut and adding a day of settlement delay — sometimes several. Zelkea settles directly between the two institutions' balances on the network, in one hop, regardless of how many countries sit between them geographically.
 
 ## What currently works, and what's next
 
 <Note>
-  Zelkea currently settles in **USD**, with **EUR** supported for transactions. Currency coverage is expanding based on institution demand — see [What we support](/what-we-support) for the current list of supported countries and currencies.
+  Zelkea currently supports **USD** and **EUR**. Currency coverage is expanding based on institution demand. See [What we support](/what-we-support) for the current list of supported countries and currencies.
 </Note>
 
 If your institution needs a currency that isn't live yet, that's useful signal for us — reach out at [support@zelkea.com](mailto:support@zelkea.com).
