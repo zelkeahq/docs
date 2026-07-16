@@ -3,7 +3,7 @@ title: "Errors"
 description: "What each error means, and whether you should retry."
 ---
 
-Zelkea uses standard HTTP status codes. The code tells you the category of what went wrong; the body tells you the specifics.
+Zelkea uses standard HTTP status codes. The status code tells you the type of error, while the response body provides the specific details.
 
 ## Error shape
 
@@ -31,7 +31,7 @@ Every error response has the same structure:
 | `404` | The resource doesn't exist, or doesn't belong to the calling organization. | No. |
 | `409` | A conflict — usually a handle that already exists. | No. Use a different identifier, or fetch the existing resource instead. |
 | `422` | The request is well-formed, but can't be processed — usually a missing wallet configuration somewhere in the routing path. | Sometimes. See below. |
-| `429` | Too many requests. | Yes, after backing off. See [Rate limits](/rate-limits). |
+| `429` | Too many requests. | Yes, after backing off. |
 | `500` | Something failed on our side. | Yes, safely — see idempotency below. |
 
 ## Common `400` and `403` messages
@@ -49,13 +49,15 @@ Every error response has the same structure:
 
 ## What `422` actually means here
 
-Zelkea returns `422` specifically when the request is valid but the **routing infrastructure** behind a handle isn't fully configured — most commonly, an institution hasn't finished wallet setup on their end. This is different from a `400`: the request itself was correct, but something upstream isn't ready yet.
+Zelkea returns `422` when the request itself is valid, but the routing infrastructure behind a handle is not fully ready. This most commonly happens when an institution has not completed onboarding or does not have an active Zelkea balance configured.
 
-If you're an institution seeing this on your own handles, check your wallet configuration. If you're a business seeing this on a customer's handle, the customer's institution likely hasn't completed onboarding — this isn't something you can resolve from your side.
+This is different from a `400` error: the request is correctly formatted, but a required upstream setup is missing.
+
+If you are an institution seeing this error for your own handles, check your Zelkea configuration. If you are a business seeing it for a customer's handle, the issue is with the customer's institution onboarding and cannot be resolved from your side.
 
 ## Retrying safely
 
-Every `POST /transfers` and `POST /payments` call requires an `idempotency-key` header. If a request fails with a `500`, or times out and you're unsure whether it went through, retry with the **same** idempotency key — Zelkea returns the original result instead of creating a duplicate transaction.
+Every `POST /transfers` and `POST /payments` request requires an `idempotency-key` header. If a request returns a `500` error or times out and you are unsure whether it was processed, retry using the same idempotency key. Zelkea returns the original result instead of creating a duplicate transaction.
 
 <Warning>
   Never retry a `400`, `401`, `403`, `404`, or `409` — the request itself is the problem, and retrying it unchanged will just fail the same way again. Only `429` and `500` are safe to retry as-is.
@@ -67,12 +69,8 @@ Every transfer and payment can be looked up after the fact, using the same idemp
 
 ```bash
 curl --request GET 'https://api.zelkea.com/transfers/alice@acme/tx_987654321' \
-  --header "Authorization: Bearer $ZELKEA_API_KEY"
+  --header 'Authorization: Bearer <API key>'
 ```
-
-## If it exists, it succeeded. If you get a `404`, it didn't go through — safe to retry.--- title: "Errors" description: "What each error means, and whether you should retry."
-
-Zelkea uses standard HTTP status codes. The code tells you the category of what went wrong; the body tells you the specifics.
 
 ## Error shape
 
@@ -89,54 +87,3 @@ Every error response has the same structure:
 <Tip>
   Include `requestId` when contacting [support@zelkea.com](mailto:support@zelkea.com) about a specific failed request — it lets us find the exact call without you needing to paste your API key or request body.
 </Tip>
-
-## Status codes
-
-| Code | Meaning | Retry? |
-| :-- | :-- | :-- |
-| `400` | The request is malformed — missing required fields, or a value that doesn't match what's expected. | No. Fix the request first. |
-| `401` | The API key is missing, invalid, or expired. | No. Check your `Authorization` header. |
-| `403` | The key is valid, but not authorized for this action — wrong scope, or the resource doesn't belong to your organization. | No. This won't succeed on retry without a different key or resource. |
-| `404` | The resource doesn't exist, or doesn't belong to the calling organization. | No. |
-| `409` | A conflict — usually a handle that already exists. | No. Use a different identifier, or fetch the existing resource instead. |
-| `422` | The request is well-formed, but can't be processed — usually a missing wallet configuration somewhere in the routing path. | Sometimes. See below. |
-| `429` | Too many requests. | Yes, after backing off. See [Rate limits](/rate-limits). |
-| `500` | Something failed on our side. | Yes, safely — see idempotency below. |
-
-## Common `400` and `403` messages
-
-| Error | What it means |
-| :-- | :-- |
-| `Missing required fields: ...` | One or more required body fields weren't included in the request. |
-| `Invalid customer handle format` / `Invalid sender format` / `Invalid receiver format` | A handle was passed without an `@domain` part. |
-| `Security exception: Invalid customer authorization code` | The `code` provided doesn't match the customer's current code. Codes rotate after every use — make sure you're not using a cached one. |
-| `Security exception: Customer account status is not active` | The handle exists but is `restricted` or `inactive`. |
-| `Transaction declined: Insufficient customer balance` | The amount exceeds the handle's current `balance`. |
-| `Transaction declined: Action exceeds limit thresholds` | The amount exceeds the handle's configured `limit`. |
-| `Forbidden: API key organization does not match sender resource` | You're trying to act on a handle or business that doesn't belong to your organization. |
-| `Split structural error: Allocations sum (...) must match total amount (...)` | The `splits` array in a payment doesn't add up to the total `amount`. |
-
-## What `422` actually means here
-
-Zelkea returns `422` specifically when the request is valid but the **routing infrastructure** behind a handle isn't fully configured — most commonly, an institution hasn't finished wallet setup on their end. This is different from a `400`: the request itself was correct, but something upstream isn't ready yet.
-
-If you're an institution seeing this on your own handles, check your wallet configuration. If you're a business seeing this on a customer's handle, the customer's institution likely hasn't completed onboarding — this isn't something you can resolve from your side.
-
-## Retrying safely
-
-Every `POST /transfers` and `POST /payments` call requires an `idempotency-key` header. If a request fails with a `500`, or times out and you're unsure whether it went through, retry with the **same** idempotency key — Zelkea returns the original result instead of creating a duplicate transaction.
-
-<Warning>
-  Never retry a `400`, `401`, `403`, `404`, or `409` — the request itself is the problem, and retrying it unchanged will just fail the same way again. Only `429` and `500` are safe to retry as-is.
-</Warning>
-
-## If you're not sure what happened
-
-Every transfer and payment can be looked up after the fact, using the same idempotency key or the returned `id`:
-
-```bash
-curl --request GET 'https://api.zelkea.com/transfers/alice@acme/tx_987654321' \
-  --header "Authorization: Bearer $ZELKEA_API_KEY"
-```
-
-If it exists, it succeeded. If you get a `404`, it didn't go through — safe to retry.
