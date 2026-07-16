@@ -9,7 +9,7 @@ A payment is how a business collects money from a customer. It looks similar to 
   Payments are for **businesses** collecting money online. If you're an institution moving money between two handles directly, you want [Transfers](/transfers) instead.
 </Note>
 
-## The authorization code
+## **Payment authorization**
 
 Every handle has an associated code, a short-lived rotating value retrieved on demand by the customer's institution and displayed inside their banking or wallet app. During online checkout, the customer enters the code along with their handle. The business includes it in the payment request, and the code is invalidated immediately after use.
 
@@ -17,7 +17,7 @@ Every handle has an associated code, a short-lived rotating value retrieved on d
   Think of it like a card's CVV, except it rotates automatically and can only be used once. Even if a code is exposed, it has no value after use and cannot be reused for another payment.
 </Tip>
 
-## Charging a customer
+## Creating a payment
 
 ```bash Execute a payment
 curl --request POST 'https://api.zelkea.com/payments' \
@@ -46,7 +46,7 @@ curl --request POST 'https://api.zelkea.com/payments' \
 
 If the code is wrong, already used, or expired, the request is automatically rejected.
 
-## Splitting a payment
+## Split payments
 
 A single customer payment can be split across multiple recipients in a single request, making it ideal for marketplaces, revenue-sharing platforms, and any checkout flow where funds need to be distributed between multiple parties.
 
@@ -65,7 +65,7 @@ A single customer payment can be split across multiple recipients in a single re
 
 The split amounts must add up to the total payment amount, otherwise the request is rejected. Each recipient receives their share directly and instantly, with no one needing to wait for another party to process a payout.
 
-## Checking what you've been paid
+## Retrieving payments
 
 Successful payments settle instantly. Funds are available immediately, so you do not need to rely on webhooks to know when a payment completes. If you prefer event-driven updates, you can optionally [register a webhook endpoint](/webhooks) to receive payment events in real time.
 
