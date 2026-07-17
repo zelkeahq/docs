@@ -32,10 +32,6 @@
       {
         "href": "mailto:support@zelkea.com",
         "label": "Support"
-      },
-      {
-        "href": "https://zelkea.com/contact",
-        "label": "Talk to sales"
       }
     ],
     "primary": {
@@ -56,13 +52,6 @@
   },
   "icons": {
     "library": "lucide"
-  },
-  "integrations": {
-    "posthog": {
-      "apiKey": "phc_vzWYe5ShDsNkBUqN9YcsXaL5KDMoKeiAbZWzKgMPVAaa",
-      "apiHost": "https://us.i.posthog.com",
-      "sessionRecording": true
-    }
   },
   "contextual": {
     "options": [
