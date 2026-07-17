@@ -2,7 +2,7 @@
 title: "Idempotency"
 ---
 
-All `POST` APIs in Zelkea require [idempotency](https://developer.mozilla.org/en-US/docs/Glossary/Idempotent) to ensure safe retries and prevent duplicate operations. You must include an `idempotency-key` header with a unique value for every request.
+Most `POST` requests in Zelkea require [idempotency](https://developer.mozilla.org/en-US/docs/Glossary/Idempotent) to ensure safe retries and prevent duplicate operations. You must include an `idempotency-key` header with a unique value for every request.
 
 If a request is retried due to network issues, timeouts, or unexpected failures, Zelkea uses the idempotency key to recognize the duplicate request and return the original response without creating duplicate operations.
 
@@ -25,14 +25,14 @@ If a request is retried due to network issues, timeouts, or unexpected failures,
 ### Example
 
 ```shell
-curl --location --request POST 'https://api.zelkea.com/transfers' \
---header 'Content-Type: application/json' \
---header 'Authorization: Bearer <api-key>' \
---header 'idempotency-key: 7b9e4a3c-2d1e-4f5a-8b6c-9d8e7f6a5b4c' \
---data-raw '{
-  "sender": "alice@acme",
-  "receiver": "bob@scbank",
-  "amount": 250,
-  "currency": "USD"
-}'
+curl --request POST 'https://api.zelkea.com/transfers' \
+  --header 'Authorization: Bearer <API key>' \
+  --header 'Content-Type: application/json' \
+  --header 'idempotency-key: 7b9e4a3c-2d1e-4f5a-8b6c-9d8e7f6a5b4c' \
+  --data-raw '{
+    "sender": "alice@acme",
+    "receiver": "bob@scbank",
+    "amount": 250,
+    "currency": "USD"
+  }'
 ```

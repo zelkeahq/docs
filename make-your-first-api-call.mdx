@@ -20,7 +20,7 @@ Every customer on the network needs a unique payment handle like `tom@lionbank` 
 <CodeGroup>
 
 ```bash cURL Request
-curl --location --request POST 'https://api.zelkea.com/handles' \
+curl --request POST 'https://api.zelkea.com/handles' \
 --header 'Authorization: Bearer <API key>' \
 --header 'Content-Type: application/json' \
 --data-raw '{
@@ -54,7 +54,7 @@ Use the Transfer API to initiate an instant fund transfer to any active handle i
 <CodeGroup>
 
 ```bash cURL Request
-curl --location --request POST 'https://api.zelkea.com/transfers' \
+curl --request POST 'https://api.zelkea.com/transfers' \
 --header 'Authorization: Bearer <API key>' \
 --header 'idempotency-key: 7b9e4a3c-2d1e-4f5a-8b6c-9d8e7f6a5b4c' \
 --header 'Content-Type: application/json' \
@@ -87,7 +87,7 @@ Now you can register a webhook endpoint to receive real-time payment and transfe
 <CodeGroup>
 
 ```bash cURL Request
-curl --location --request POST 'https://api.zelkea.com/webhooks' \
+curl --request POST 'https://api.zelkea.com/webhooks' \
 --header 'Authorization: Bearer <API key>' \
 --header 'Content-Type: application/json' \
 --data-raw '{

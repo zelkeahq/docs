@@ -17,7 +17,7 @@ Zelkea uses secure API keys to authenticate requests. You can generate and manag
 ## Example request
 
 ```bash cURL Request
-curl --location --request POST 'https://api.zelkea.com/handles' \
---header 'Authorization: <api-key>' \
---header 'Content-Type: application/json'
+curl --request POST 'https://api.zelkea.com/handles' \
+  --header 'Authorization: Bearer <API key>' \
+  --header 'Content-Type: application/json' 
 ```

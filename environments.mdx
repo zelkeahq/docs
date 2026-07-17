@@ -33,8 +33,8 @@ You can safely create handles, fund balances, send transfers, receive webhooks, 
 Unlike production, sandbox balances can be funded instantly using the simulation endpoint.
 
 ```bash
-curl --request POST 'https://sandbox.zelkea.com/simulate-deposit' \
-  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+curl --request POST 'https://sandbox.zelkea.com/simulate_deposit' \
+  --header 'Authorization: Bearer <API key>' \
   --header "idempotency-key: 8d5cf65d-56e4-43b4-a21c-7305dfe27d77" \
   --header "Content-Type: application/json" \
   --data-raw '{
@@ -48,7 +48,7 @@ Supported currencies are:
 - `USD`
 - `EUR`
 
-Deposits are credited immediately and can be used to test transfers, payouts, and every balance-related API.
+Deposits are credited immediately and can be used to test transfers, payments, and every balance-related API.
 
 <Tip>
   The simulation endpoint only exists in the Sandbox environment and cannot be used in Production.
@@ -58,19 +58,18 @@ Deposits are credited immediately and can be used to test transfers, payouts, an
 
 Sandbox includes several public handles that you can use when testing transfers.
 
-| Handle | Purpose |
-| :-- | :-- |
-| `alice@sandbox` | Personal account |
-| `bob@sandbox` | Personal account |
-| `merchant@sandbox` | Business account |
-| `payroll@sandbox` | Business account |
-| `treasury@sandbox` | Institution account |
+| Handle | Purpose | Status |
+| :-- | :-- | --- |
+| `alice@sandbox` | Personal account | active |
+| `bob@sandbox` | Personal account | restricted |
+| `merchant@sandbox` | Business account | funded |
+| `payroll@sandbox` | Business account | empty |
 
 For example, after funding your own sandbox balance, you can send a transfer to one of the sandbox handles:
 
 ```bash
 curl --request POST 'https://sandbox.zelkea.com/transfers' \
-  --header "Authorization: Bearer $ZELKEA_API_KEY" \
+  --header 'Authorization: Bearer <API key>' \
   --header "idempotency-key: cfd9d087-2219-43ef-bfe6-7c0df0b55b1e" \
   --header "Content-Type: application/json" \
   --data-raw '{
