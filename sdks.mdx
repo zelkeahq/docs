@@ -1,34 +1,26 @@
 ---
 title: "SDKs"
-description: "Official client libraries."
+description: "Official client libraries for the Zelkea API."
 ---
 
-<Note>
-  SDKs are on the way. This page will be updated as each language ships — in the meantime, every endpoint is fully documented in the [API Reference](/authentication) and works with any standard HTTP client.
-</Note>
+Zelkea SDKs make integration faster by handling authentication, request formatting, and API communication for you. Instead of building directly against the API, use our official client libraries to get started with less boilerplate.
 
-## Planned languages
+We currently provide an official JavaScript SDK. Additional SDKs are planned — if you need support for another language, contact [support@zelkea.com](mailto:support@zelkea.com).
 
-| Language | Status |
-| :-- | :-- |
-| Node.js / TypeScript | Coming soon |
-| Python | Coming soon |
+## JavaScript
 
-We're prioritizing based on what our integrating institutions and businesses are actually building with — if you need a language not listed here, tell us at [support@zelkea.com](mailto:support@zelkea.com).
-
-## Why generated, not hand-written
-
-Our SDKs are generated directly from our [OpenAPI specification](https://docs.zelkea.com/openapi.json), rather than maintained by hand. This means every SDK stays in lockstep with the API itself — a new field or endpoint in the spec shows up in the SDK automatically, with no drift between what's documented and what the client library actually supports.
-
-## In the meantime
-
-The spec itself is open and can be fed into any standard OpenAPI code generator if you'd like typed bindings before an official SDK for your language ships:
+Install the SDK:
 
 ```bash
-npx @openapitools/openapi-generator-cli generate \
-  -i https://docs.zelkea.com/openapi.json \
-  -g typescript-fetch \
-  -o ./zelkea-client
+npm install @zelkea/node-sdk
 ```
 
-This isn't the official SDK and isn't supported directly by us, but since it's generated from the same spec we publish, it'll track the real API accurately.
+Initialize the client with your API key:
+
+```javascript
+import { Zelkea } from "@zelkea/node-sdk";
+
+const zelkea = new Zelkea({
+  apiKey: "your_api_key"
+});
+```
