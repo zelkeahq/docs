@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Zelkea API",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "description": "A universal financial addressing and payment routing protocol."
   },
   "servers": [
@@ -715,7 +715,11 @@
           "currency": {
             "type": "string",
             "enum": [
-              "USD"
+              "usd",
+              "eur",
+              "gbp",
+              "brl",
+              "mxn"
             ],
             "description": "Currency code"
           },
@@ -768,7 +772,7 @@
           "currency": {
             "type": "string",
             "enum": [
-              "USD"
+              "usd"
             ]
           },
           "external_reference": {
@@ -792,7 +796,7 @@
           "currency": {
             "type": "string",
             "enum": [
-              "USD"
+              "usd"
             ]
           },
           "limit": {
@@ -882,8 +886,11 @@
           "currency": {
             "type": "string",
             "enum": [
-              "USD",
-              "EUR"
+              "usd",
+              "eur",
+              "gbp",
+              "brl",
+              "mxn"
             ],
             "description": "Currency code"
           },
