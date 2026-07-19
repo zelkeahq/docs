@@ -715,11 +715,7 @@
           "currency": {
             "type": "string",
             "enum": [
-              "usd",
-              "eur",
-              "gbp",
-              "brl",
-              "mxn"
+              "usd"
             ],
             "description": "Currency code"
           },
