@@ -715,7 +715,8 @@
           "currency": {
             "type": "string",
             "enum": [
-              "usd"
+              "usd",
+              "eur"
             ],
             "description": "Currency code"
           },
@@ -768,7 +769,8 @@
           "currency": {
             "type": "string",
             "enum": [
-              "usd"
+              "usd",
+              "eur"
             ]
           },
           "external_reference": {
@@ -792,7 +794,8 @@
           "currency": {
             "type": "string",
             "enum": [
-              "usd"
+              "usd",
+              "eur"
             ]
           },
           "limit": {
@@ -880,15 +883,30 @@
             "description": "Amount to transfer"
           },
           "currency": {
-            "type": "string",
-            "enum": [
-              "usd",
-              "eur",
-              "gbp",
-              "brl",
-              "mxn"
+            "type": "object",
+            "required": [
+              "source",
+              "destination"
             ],
-            "description": "Currency code"
+            "properties": {
+              "source": {
+                "type": "string",
+                "enum": [
+                  "usd",
+                  "eur"
+                ],
+                "description": "Source currency code"
+              },
+              "destination": {
+                "type": "string",
+                "enum": [
+                  "usd",
+                  "eur"
+                ],
+                "description": "Destination currency code"
+              }
+            },
+            "description": "Source and destination currencies for the transfer"
           },
           "reference": {
             "type": "string",
@@ -914,11 +932,29 @@
             "exclusiveMinimum": 0
           },
           "currency": {
-            "type": "string",
-            "enum": [
-              "USD",
-              "EUR"
-            ]
+            "type": "object",
+            "required": [
+              "source",
+              "destination"
+            ],
+            "properties": {
+              "source": {
+                "type": "string",
+                "enum": [
+                  "usd",
+                  "eur"
+                ],
+                "description": "Source currency code"
+              },
+              "destination": {
+                "type": "string",
+                "enum": [
+                  "usd",
+                  "eur"
+                ],
+                "description": "Destination currency code"
+              }
+            }
           },
           "created_at": {
             "type": "string",
