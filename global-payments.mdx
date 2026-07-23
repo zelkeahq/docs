@@ -22,7 +22,10 @@ curl --request POST 'https://api.zelkea.com/transfers' \
     "sender": "tom@bank",
     "receiver": "sushihouse@jpybank",
     "amount": 850,
-    "currency": "JPY"
+    "currency": {
+      "source": "eur",
+      "destination": "jpy"
+    }
   }'
 ```
 
@@ -34,7 +37,10 @@ Tom was debited instantly, and the restaurant received the funds directly into i
   "sender": "tom@bank",
   "receiver": "sushihouse@jpybank",
   "amount": 850,
-  "currency": "JPY",
+  "currency": {
+    "source": "eur",
+    "destination": "jpy"
+  },
   "status": "completed",
   "created_at": "2026-07-10T14:02:33Z",
   "reference": "Payment Kaiten-sushi"
